@@ -21,6 +21,10 @@ contract Diamond {
         LibDiamond._diamondCut(_diamondCut, _args.init, _args.initData);
     }
 
+    /// @notice Receive function to accept plain Ether transfers
+    /// @dev Allows contract to receive Ether without data
+    receive() external payable {}
+
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
     fallback() external payable {
@@ -45,8 +49,4 @@ contract Diamond {
             default { return(0, returndatasize()) }
         }
     }
-
-    /// @notice Receive function to accept plain Ether transfers
-    /// @dev Allows contract to receive Ether without data
-    receive() external payable {}
 }
