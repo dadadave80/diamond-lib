@@ -18,13 +18,10 @@ contract DiamondLoupeFacet is IDiamondLoupe {
         DiamondStorage storage ds = LibDiamond._diamondStorage();
         uint256 facetCount = ds.facetAddresses.length;
         facets_ = new Facet[](facetCount);
-        for (uint256 i; i < facetCount;) {
+        for (uint256 i; i < facetCount; ++i) {
             address facetAddr = ds.facetAddresses[i];
             facets_[i].facetAddress = facetAddr;
             facets_[i].functionSelectors = ds.facetToSelectorsAndPosition[facetAddr].functionSelectors;
-            unchecked {
-                ++i;
-            }
         }
     }
 

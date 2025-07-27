@@ -32,11 +32,8 @@ abstract contract HelperContract is Test {
         // Initialize the selectors array with the selectorCount
         selectors_ = new bytes4[](keysLength);
 
-        for (uint256 i; i < keysLength;) {
+        for (uint256 i; i < keysLength; ++i) {
             selectors_[i] = bytes4(bytes32(keccak256(bytes(keys[i]))));
-            unchecked {
-                ++i;
-            }
         }
     }
 
@@ -48,7 +45,7 @@ abstract contract HelperContract is Test {
         uint256 arrayLength = _array.length;
         array_ = new bytes4[](arrayLength - 1);
         uint256 j = 0;
-        for (uint256 i; i < arrayLength; i++) {
+        for (uint256 i; i < arrayLength; ++i) {
             if (i != _index) {
                 array_[j] = _array[i];
                 j += 1;
@@ -62,7 +59,7 @@ abstract contract HelperContract is Test {
     /// @return array_ A new array without the specified selector.
     function removeElement(bytes4 el, bytes4[] memory _array) public pure returns (bytes4[] memory array_) {
         uint256 arrayLength = _array.length;
-        for (uint256 i; i < arrayLength; i++) {
+        for (uint256 i; i < arrayLength; ++i) {
             if (_array[i] == el) {
                 array_ = removeElement(i, _array);
             }
@@ -75,7 +72,7 @@ abstract contract HelperContract is Test {
     /// @return `true` if the selector is found, `false` otherwise.
     function containsElement(bytes4[] memory _array, bytes4 _el) public pure returns (bool) {
         uint256 arrayLength = _array.length;
-        for (uint256 i; i < arrayLength; i++) {
+        for (uint256 i; i < arrayLength; ++i) {
             if (_array[i] == _el) {
                 return true;
             }
@@ -89,7 +86,7 @@ abstract contract HelperContract is Test {
     /// @return `true` if the address is found, `false` otherwise.
     function containsElement(address[] memory _array, address _el) public pure returns (bool) {
         uint256 arrayLength = _array.length;
-        for (uint256 i; i < arrayLength; i++) {
+        for (uint256 i; i < arrayLength; ++i) {
             if (_array[i] == _el) {
                 return true;
             }
@@ -106,7 +103,7 @@ abstract contract HelperContract is Test {
         if (array1Length != _array2.length) {
             return false;
         }
-        for (uint256 i; i < array1Length; i++) {
+        for (uint256 i; i < array1Length; ++i) {
             if (containsElement(_array1, _array2[i])) {
                 return true;
             }
@@ -122,14 +119,14 @@ abstract contract HelperContract is Test {
 
         uint256 facetListLength = facetList.length;
         uint256 len = 0;
-        for (uint256 i; i < facetListLength; i++) {
+        for (uint256 i; i < facetListLength; ++i) {
             len += facetList[i].functionSelectors.length;
         }
 
         uint256 pos = 0;
         selectors_ = new bytes4[](len);
-        for (uint256 i; i < facetListLength; i++) {
-            for (uint256 j; j < facetList[i].functionSelectors.length; j++) {
+        for (uint256 i; i < facetListLength; ++i) {
+            for (uint256 j; j < facetList[i].functionSelectors.length; ++j) {
                 selectors_[pos] = facetList[i].functionSelectors[j];
                 pos += 1;
             }
