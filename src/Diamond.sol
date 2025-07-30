@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
+import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 import {DiamondArgs, FacetCut} from "@diamond/libraries/types/DiamondTypes.sol";
 import {FunctionDoesNotExist} from "@diamond/libraries/errors/DiamondErrors.sol";
