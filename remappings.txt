@@ -1,7 +1,7 @@
-ds-test/=lib/solidity-stringutils/lib/ds-test/src/
-forge-std/=lib/forge-std/src/
-solady/=lib/solady/src/
-solidity-stringutils/=lib/solidity-stringutils/
 @diamond/=src/
 @diamond-script/=script/
 @diamond-test/=test/
+@diamond-storage/=src/libraries/storage/
+@diamond-logs/=src/libraries/logs/
+@diamond-errors/=src/libraries/errors/
+forge-std/=lib/forge-std/src/
