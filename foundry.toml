@@ -6,10 +6,13 @@ remappings = [
     '@diamond/=src/',
     '@diamond-script/=script/',
     '@diamond-test/=test/',
+    '@diamond-storage/=src/libraries/storage/',
+    '@diamond-logs/=src/libraries/logs/',
+    '@diamond-errors/=src/libraries/errors/'
 ]
 auto_detect_remappings = true
 ffi = true
-optimizer_runs = 100_000
+optimizer_runs = 20_000
 evm_version = "prague"
 allow_internal_expect_revert = false
 names = true

@@ -20,6 +20,10 @@ struct FacetFunctionSelectorsAndPosition {
     uint256 facetAddressPosition;
 }
 
+//*//////////////////////////////////////////////////////////////////////////
+//                              DIAMOND STORAGE
+//////////////////////////////////////////////////////////////////////////*//
+
 /// @notice Storage structure for managing facets and interface support in a Diamond (EIP-2535) proxy
 /// @dev Tracks function selector mappings, facet lists, and ERC-165 interface support
 /// @custom:storage-location erc7201:diamond.standard.diamond.storage

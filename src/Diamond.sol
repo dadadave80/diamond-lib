@@ -3,8 +3,8 @@ pragma solidity ^0.8.4;
 
 import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
-import {DiamondArgs, FacetCut} from "@diamond/libraries/types/DiamondTypes.sol";
-import {FunctionDoesNotExist} from "@diamond/libraries/errors/DiamondErrors.sol";
+import {DiamondArgs, FacetCut} from "@diamond-storage/DiamondStorage.sol";
+import {FunctionDoesNotExist} from "@diamond-errors/DiamondErrors.sol";
 
 /// @notice Implements EIP-2535 Diamond proxy pattern, allowing dynamic addition, replacement, and removal of facets
 /// @author David Dada
@@ -28,10 +28,9 @@ contract Diamond {
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
     fallback() external payable {
-        bytes4 selector = msg.sig;
         // Lookup facet for function selector
-        address facet = LibDiamond._diamondStorage().selectorToFacetAndPosition[selector].facetAddress;
-        if (facet == address(0)) revert FunctionDoesNotExist(selector);
+        address facet = LibDiamond._diamondStorage().selectorToFacetAndPosition[msg.sig].facetAddress;
+        if (facet == address(0)) revert FunctionDoesNotExist(msg.sig);
 
         assembly {
             // Copy calldata to memory

@@ -1,27 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {
-    FacetCut,
-    FacetCutAction,
-    DiamondStorage,
-    DIAMOND_STORAGE_LOCATION
-} from "@diamond/libraries/types/DiamondTypes.sol";
+import {FacetCut, FacetCutAction, DiamondStorage, DIAMOND_STORAGE_LOCATION} from "@diamond-storage/DiamondStorage.sol";
 import {DiamondCut} from "@diamond/libraries/logs/DiamondLogs.sol";
-import {
-    CannotAddFunctionToDiamondThatAlreadyExists,
-    CannotAddSelectorsToZeroAddress,
-    CannotRemoveFunctionThatDoesNotExist,
-    CannotRemoveImmutableFunction,
-    CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet,
-    IncorrectFacetCutAction,
-    InitializationFunctionReverted,
-    NoBytecodeAtAddress,
-    NoFacetsInDiamondCut,
-    NoSelectorsGivenToAdd,
-    NoSelectorsProvidedForFacetForCut,
-    RemoveFacetAddressMustBeZeroAddress
-} from "@diamond/libraries/errors/DiamondErrors.sol";
+/// forge-lint: disable-next-line(unaliased-plain-import)
+import "@diamond-errors/DiamondErrors.sol";
 
 /// @notice Internal library providing core functionality for EIP-2535 Diamond proxy management.
 /// @author David Dada
@@ -36,9 +19,8 @@ library LibDiamond {
 
     /// @dev Get the diamond storage.
     function _diamondStorage() internal pure returns (DiamondStorage storage ds_) {
-        bytes32 position = DIAMOND_STORAGE_LOCATION;
         assembly {
-            ds_.slot := position
+            ds_.slot := DIAMOND_STORAGE_LOCATION
         }
     }
 
