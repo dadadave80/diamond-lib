@@ -24,9 +24,8 @@ library LibDiamond {
 
     /// @dev Get the diamond storage.
     function _diamondStorage() internal pure returns (DiamondStorage storage ds_) {
-        bytes32 position = DIAMOND_STORAGE_LOCATION;
         assembly {
-            ds_.slot := position
+            ds_.slot := DIAMOND_STORAGE_LOCATION
         }
     }
 
