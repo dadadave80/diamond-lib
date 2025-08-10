@@ -8,20 +8,8 @@ import {
     DIAMOND_STORAGE_LOCATION
 } from "@diamond-storage/DiamondStorage.sol";
 import {DiamondCut} from "@diamond/libraries/logs/DiamondLogs.sol";
-import {
-    CannotAddFunctionToDiamondThatAlreadyExists,
-    CannotAddSelectorsToZeroAddress,
-    CannotRemoveFunctionThatDoesNotExist,
-    CannotRemoveImmutableFunction,
-    CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet,
-    IncorrectFacetCutAction,
-    InitializationFunctionReverted,
-    NoBytecodeAtAddress,
-    NoFacetsInDiamondCut,
-    NoSelectorsGivenToAdd,
-    NoSelectorsProvidedForFacetForCut,
-    RemoveFacetAddressMustBeZeroAddress
-} from "@diamond/libraries/errors/DiamondErrors.sol";
+/// forge-lint: disable-next-line(unaliased-plain-import)
+import "@diamond-errors/DiamondErrors.sol";
 
 /// @notice Internal library providing core functionality for EIP-2535 Diamond proxy management.
 /// @author David Dada
