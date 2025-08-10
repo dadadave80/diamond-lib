@@ -130,21 +130,21 @@ contract OwnableRolesFacet {
 
     /// @dev Marks a function as only callable by an account with `roles`.
     modifier onlyRoles(uint256 _roles) {
-        _roles._checkRoles();
+        LibOwnableRoles._checkRoles(_roles);
         _;
     }
 
     /// @dev Marks a function as only callable by the owner or by an account
     ///      with `roles`. Checks for ownership first, then lazily checks for roles.
     modifier onlyOwnerOrRoles(uint256 _roles) {
-        _roles._checkOwnerOrRoles();
+        LibOwnableRoles._checkOwnerOrRoles(_roles);
         _;
     }
 
     /// @dev Marks a function as only callable by an account with `roles` or the owner.
     /// Checks for roles first, then lazily checks for ownership.
     modifier onlyRolesOrOwner(uint256 _roles) {
-        _roles._checkRolesOrOwner();
+        LibOwnableRoles._checkRolesOrOwner(_roles);
         _;
     }
 }
