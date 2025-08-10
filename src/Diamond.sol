@@ -28,10 +28,9 @@ contract Diamond {
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
     fallback() external payable {
-        bytes4 selector = msg.sig;
         // Lookup facet for function selector
-        address facet = LibDiamond._diamondStorage().selectorToFacetAndPosition[selector].facetAddress;
-        if (facet == address(0)) revert FunctionDoesNotExist(selector);
+        address facet = LibDiamond._diamondStorage().selectorToFacetAndPosition[msg.sig].facetAddress;
+        if (facet == address(0)) revert FunctionDoesNotExist(msg.sig);
 
         assembly {
             // Copy calldata to memory
