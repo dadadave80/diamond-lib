@@ -6,6 +6,9 @@ remappings = [
     '@diamond/=src/',
     '@diamond-script/=script/',
     '@diamond-test/=test/',
+    '@diamond-storage/=src/libraries/storage/',
+    '@diamond-logs/=src/libraries/logs/',
+    '@diamond-errors/=src/libraries/errors/'
 ]
 auto_detect_remappings = true
 ffi = true
