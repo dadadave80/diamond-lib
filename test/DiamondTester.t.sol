@@ -2,8 +2,8 @@
 pragma solidity ^0.8.4;
 
 import {Test} from "forge-std/Test.sol";
-import {Facet} from "@diamond/libraries/types/DiamondTypes.sol";
 import {DeployedDiamondState} from "./helpers/TestStates.sol";
+import {Facet} from "@diamond-storage/DiamondStorage.sol";
 
 /// @title DiamondTester
 /// @notice Contains test cases to validate the deployment and structure of the Diamond contract.

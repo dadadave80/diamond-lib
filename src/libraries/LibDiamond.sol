@@ -6,7 +6,7 @@ import {
     FacetCutAction,
     DiamondStorage,
     DIAMOND_STORAGE_LOCATION
-} from "@diamond/libraries/types/DiamondTypes.sol";
+} from "@diamond-storage/DiamondStorage.sol";
 import {DiamondCut} from "@diamond/libraries/logs/DiamondLogs.sol";
 import {
     CannotAddFunctionToDiamondThatAlreadyExists,
