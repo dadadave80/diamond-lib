@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+/// @title LibOwnableRoles
 /// @notice Simple single owner and multiroles authorization mixin.
 /// @author David Dada
 /// @author Modified from Solady (https://github.com/vectorized/solady/blob/main/src/auth/OwnableRoles.sol)

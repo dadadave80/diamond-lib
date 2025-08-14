@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {AddressAndCalldataLengthDoNotMatch} from "@diamond-errors/DiamondErrors.sol";
 
+/// @title MultiInit
 /// @notice Executes multiple initialization calls in sequence during a diamond upgrade
 /// @author David Dada
 /// @author Modified from Timo (https://github.com/FydeTreasury/Diamond-Foundry/blob/main/src/upgradeInitializers/DiamondMultiInit.sol)

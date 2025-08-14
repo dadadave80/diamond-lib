@@ -3,6 +3,8 @@ pragma solidity ^0.8.4;
 
 import {Facet} from "@diamond-storage/DiamondStorage.sol";
 
+/// @title IDiamondLoupe
+/// @notice Interface for diamond loupe (facet information) functionality
 interface IDiamondLoupe {
     /// @notice Gets all facet addresses and their function selectors.
     /// @return facets_ Facet

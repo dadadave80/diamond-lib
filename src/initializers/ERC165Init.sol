@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 
+/// @title ERC165Init
 /// @notice Provides an initializer to register standard interface support (ERC-165, ERC-173, IDiamondCut, IDiamondLoupe)
 /// @author David Dada
 /// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/upgradeInitializers/DiamondInit.sol)

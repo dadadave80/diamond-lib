@@ -3,6 +3,7 @@ pragma solidity ^0.8.4;
 
 import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 
+/// @title OwnableRolesFacet
 /// @notice Simple single owner and multiroles authorization mixin.
 /// @author David Dada
 /// @author Modified from Solady (https://github.com/vectorized/solady/blob/main/src/auth/OwnableRoles.sol)

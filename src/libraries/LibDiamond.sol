@@ -6,6 +6,7 @@ import {DiamondCut} from "@diamond/libraries/logs/DiamondLogs.sol";
 /// forge-lint: disable-next-line(unaliased-plain-import)
 import "@diamond-errors/DiamondErrors.sol";
 
+/// @title LibDiamond
 /// @notice Internal library providing core functionality for EIP-2535 Diamond proxy management.
 /// @author David Dada
 /// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/libraries/LibDiamond.sol)

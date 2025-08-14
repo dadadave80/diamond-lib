@@ -3,6 +3,8 @@ pragma solidity ^0.8.4;
 
 import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
 
+/// @title IDiamondCut
+/// @notice Interface for diamond cut (facet add/replace/remove) functionality
 interface IDiamondCut {
     /// @notice Add/replace/remove any number of functions and optionally execute
     ///         a function with delegatecall

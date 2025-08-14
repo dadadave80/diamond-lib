@@ -6,6 +6,7 @@ import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
 
+/// @title DiamondCutFacet
 /// @notice Simple single owner and multiroles authorization mixin.
 /// @author David Dada
 /// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/facets/DiamondCutFacet.sol)
