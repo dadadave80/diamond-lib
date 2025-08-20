@@ -15,7 +15,7 @@ contract MultiInit {
     /// @dev Reverts if `_addresses.length != _calldata.length`. Each address is called via delegatecall using LibDiamond._initializeDiamondCut.
     /// @param _addresses The list of initializer contract addresses
     /// @param _calldata The list of encoded function calls for each initializer
-    function multiInit(address[] calldata _addresses, bytes[] calldata _calldata) external {
+    function multiInit(address[] calldata _addresses, bytes[] calldata _calldata) public {
         uint256 addressesLength = _addresses.length;
         if (addressesLength != _calldata.length) {
             revert AddressAndCalldataLengthDoNotMatch();
