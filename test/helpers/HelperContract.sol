@@ -26,7 +26,7 @@ abstract contract HelperContract is Test {
         bytes memory res = vm.ffi(cmd);
         string memory output = string(res);
 
-        string[] memory keys = vm.parseJsonKeys(output, "$");
+        string[] memory keys = vm.parseJsonKeys(output, "");
         uint256 keysLength = keys.length;
 
         // Initialize the selectors array with the selectorCount
