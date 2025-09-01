@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import {Test} from "forge-std/Test.sol";
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
 import {Facet} from "@diamond-storage/DiamondStorage.sol";
 
@@ -10,33 +9,7 @@ import {Facet} from "@diamond-storage/DiamondStorage.sol";
 /// @author Modified from Timo (https://github.com/FydeTreasury/Diamond-Foundry/blob/main/test/HelperContract.sol)
 ///
 /// @dev Includes support for generating selectors using Foundry FFI, array manipulation, and facet inspection.
-abstract contract HelperContract is Test {
-    /// @notice Generates function selectors for a given facet using Foundry's `forge inspect`.
-    /// @dev Uses `vm.ffi` to execute a shell command that retrieves method identifiers.
-    /// @param _facet The name of the facet contract to inspect.
-    /// @return selectors_ An array of function selectors extracted from the facet.
-    function _generateSelectors(string memory _facet) internal returns (bytes4[] memory selectors_) {
-        string[] memory cmd = new string[](5);
-        cmd[0] = "forge";
-        cmd[1] = "inspect";
-        cmd[2] = _facet;
-        cmd[3] = "methodIdentifiers";
-        cmd[4] = "--json";
-
-        bytes memory res = vm.ffi(cmd);
-        string memory output = string(res);
-
-        string[] memory keys = vm.parseJsonKeys(output, "$");
-        uint256 keysLength = keys.length;
-
-        // Initialize the selectors array with the selectorCount
-        selectors_ = new bytes4[](keysLength);
-
-        for (uint256 i; i < keysLength; ++i) {
-            selectors_[i] = bytes4(bytes32(keccak256(bytes(keys[i]))));
-        }
-    }
-
+library Utils {
     /// @notice Removes an element from a bytes4 array at the given index.
     /// @param _index The index of the element to remove.
     /// @param _array The original array.

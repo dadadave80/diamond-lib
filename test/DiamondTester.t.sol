@@ -2,7 +2,8 @@
 pragma solidity ^0.8.4;
 
 import {Facet} from "@diamond-storage/DiamondStorage.sol";
-import {DeployedDiamondState} from "@diamond-test/helpers/TestStates.sol";
+import {DeployedDiamondState} from "@diamond-test/states/DeployedDiamondState.sol";
+import {Utils} from "@diamond-test/helpers/Utils.sol";
 
 /// @title DiamondTester
 /// @notice Contains test cases to validate the deployment and structure of the Diamond contract.
@@ -15,7 +16,7 @@ contract DiamondTester is DeployedDiamondState {
 
     /// @notice Verifies the diamond owner is set correctly.
     function testDiamondOwner() public view {
-        assertEq(ownableRoles.owner(), diamondOwner);
+        assertEq(ownableRoles.owner(), address(this));
     }
 
     /// @notice Checks that the standard facets are deployed and have valid addresses.
@@ -31,7 +32,7 @@ contract DiamondTester is DeployedDiamondState {
     /// @dev Compares generated selectors with those registered in the diamond via facetAddress().
     function testSelectorsAreComplete() public {
         for (uint256 i; i < facetAddresses.length; ++i) {
-            bytes4[] memory fromGenSelectors = _generateSelectors(facetNames[i]);
+            bytes4[] memory fromGenSelectors = _getSelectors(facetNames[i]);
             for (uint256 j; j < fromGenSelectors.length; ++j) {
                 assertEq(facetAddresses[i], diamondLoupe.facetAddress(fromGenSelectors[j]));
             }
@@ -40,7 +41,7 @@ contract DiamondTester is DeployedDiamondState {
 
     /// @notice Asserts that all function selectors across all facets are unique.
     function testSelectorsAreUnique() public view {
-        bytes4[] memory allSelectors = getAllSelectors(address(diamond));
+        bytes4[] memory allSelectors = Utils.getAllSelectors(address(diamond));
         for (uint256 i; i < allSelectors.length; ++i) {
             for (uint256 j = i + 1; j < allSelectors.length; ++j) {
                 assertNotEq(allSelectors[i], allSelectors[j]);
