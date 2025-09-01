@@ -10,10 +10,5 @@ remappings = [
     '@diamond-logs/=src/libraries/logs/',
     '@diamond-errors/=src/libraries/errors/'
 ]
-auto_detect_remappings = true
-ffi = true
 optimizer_runs = 20_000
-evm_version = "prague"
-allow_internal_expect_revert = false
-names = true
-sizes = true
+ffi = true
