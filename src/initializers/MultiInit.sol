@@ -10,12 +10,13 @@ import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 /// @author Modified from Timo (https://github.com/FydeTreasury/Diamond-Foundry/blob/main/src/upgradeInitializers/DiamondMultiInit.sol)
 ///
 /// @dev Useful when a diamond cut requires initializing several facets at once
-contract MultiInit {
+
+contract MultiInit is Initializable {
     /// @notice Performs multiple initialization calls to provided addresses with corresponding calldata
     /// @dev Reverts if `_addresses.length != _calldata.length`. Each address is called via delegatecall using LibDiamond._initializeDiamondCut.
     /// @param _addresses The list of initializer contract addresses
     /// @param _calldata The list of encoded function calls for each initializer
-    function multiInit(address[] calldata _addresses, bytes[] calldata _calldata) public {
+    function multiInit(address[] calldata _addresses, bytes[] calldata _calldata) public initializer {
         uint256 addressesLength = _addresses.length;
         if (addressesLength != _calldata.length) {
             revert AddressAndCalldataLengthDoNotMatch();
