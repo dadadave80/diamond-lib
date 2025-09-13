@@ -102,8 +102,8 @@ library LibOwnableRoles {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @dev Override to return true to make `_initializeOwner` prevent double-initialization.
-    function _guardInitializeOwner() internal pure returns (bool guard_) {
-        guard_ = true;
+    function _guardInitializeOwner() internal pure returns (bool) {
+        return true;
     }
 
     /// @dev Initializes the owner directly without authorization guard.
