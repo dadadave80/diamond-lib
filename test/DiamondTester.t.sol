@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.20;
 
 import {Facet} from "@diamond-storage/DiamondStorage.sol";
 import {DeployedDiamondState} from "@diamond-test/states/DeployedDiamondState.sol";
