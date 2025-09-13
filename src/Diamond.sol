@@ -40,7 +40,7 @@ import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 /// @author Modified from Timo (https://github.com/FydeTreasury/Diamond-Foundry/blob/main/src/Diamond.sol)
 ///
 /// @dev Uses LibDiamond for facet management and LibOwnableRoles for ownership initialization
-contract Diamond {
+abstract contract Diamond {
     /// @notice Initializes the Diamond proxy with the provided facets and initialization parameters
     /// @param _diamondCut Array of FacetCut structs defining facet addresses, corresponding function selectors, and actions (Add, Replace, Remove)
     /// @param _args Struct containing the initial owner address, optional init contract address, and init calldata
