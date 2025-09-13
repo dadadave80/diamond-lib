@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.20;
 
 import {FacetCut, FacetCutAction, DiamondStorage, DIAMOND_STORAGE_LOCATION} from "@diamond-storage/DiamondStorage.sol";
 import {DiamondCut} from "@diamond/libraries/logs/DiamondLogs.sol";

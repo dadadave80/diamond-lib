@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.20;
 
 /// @title LibOwnableRoles
 /// @notice Simple single owner and multiroles authorization mixin.

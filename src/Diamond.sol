@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.20;
 
 import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
