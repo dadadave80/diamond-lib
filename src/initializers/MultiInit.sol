@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {AddressAndCalldataLengthDoNotMatch} from "@diamond-errors/DiamondErrors.sol";
-
+import {Initializable} from "@diamond/libraries/Initializable.sol";
+import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 /// @title MultiInit
 /// @notice Executes multiple initialization calls in sequence during a diamond upgrade
 /// @author David Dada

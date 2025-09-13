@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
 import {Facet} from "@diamond-storage/DiamondStorage.sol";
+import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
 
 /// @notice A utility contract providing helper functions for working with diamond facets and selectors.
 /// @author David Dada
