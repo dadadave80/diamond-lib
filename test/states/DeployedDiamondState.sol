@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {DeployDiamond} from "@diamond-script/DeployDiamond.s.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
+import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
 
 /// @notice Provides shared state for tests involving a freshly deployed Diamond contract.

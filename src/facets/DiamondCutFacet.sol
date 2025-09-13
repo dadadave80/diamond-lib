@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
 import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
-import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
 
 /// @title DiamondCutFacet
 /// @notice Simple single owner and multiroles authorization mixin.
