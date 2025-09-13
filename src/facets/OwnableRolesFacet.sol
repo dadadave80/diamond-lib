@@ -72,18 +72,18 @@ contract OwnableRolesFacet {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @dev Returns the owner of the contract.
-    function owner() public view returns (address result_) {
-        result_ = LibOwnableRoles._owner();
+    function owner() public view returns (address) {
+        return LibOwnableRoles._owner();
     }
 
     /// @dev Returns the expiry timestamp for the two-step ownership handover to `pendingOwner`.
-    function ownershipHandoverExpiresAt(address _pendingOwner) public view returns (uint256 result_) {
-        result_ = _pendingOwner._ownershipHandoverExpiresAt();
+    function ownershipHandoverExpiresAt(address _pendingOwner) public view returns (uint256) {
+        return _pendingOwner._ownershipHandoverExpiresAt();
     }
 
     /// @dev Returns the roles of `user`.
-    function rolesOf(address _user) public view returns (uint256 roles_) {
-        roles_ = _user._rolesOf();
+    function rolesOf(address _user) public view returns (uint256) {
+        return _user._rolesOf();
     }
 
     /// @dev Returns whether `user` has any of `roles`.
@@ -99,24 +99,15 @@ contract OwnableRolesFacet {
     /// @dev Convenience function to return a `roles` bitmap from an array of `ordinals`.
     /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
     /// Not recommended to be called on-chain.
-    function rolesFromOrdinals(uint8[] memory ordinals) external pure returns (uint256 roles_) {
-        roles_ = ordinals._rolesFromOrdinals();
+    function rolesFromOrdinals(uint8[] memory ordinals) external pure returns (uint256) {
+        return ordinals._rolesFromOrdinals();
     }
 
     /// @dev Convenience function to return an array of `ordinals` from the `roles` bitmap.
     /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
     /// Not recommended to be called on-chain.
-    function ordinalsFromRoles(uint256 roles) external pure returns (uint8[] memory ordinals_) {
-        ordinals_ = roles._ordinalsFromRoles();
-    }
-
-    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
-    /*                     INTERNAL FUNCTIONS                     */
-    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
-
-    /// @dev This override returns true to make `_initializeOwner` prevent double-initialization.
-    function _guardInitializeOwner() internal pure returns (bool guard) {
-        return true;
+    function ordinalsFromRoles(uint256 roles) external pure returns (uint8[] memory) {
+        return roles._ordinalsFromRoles();
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
