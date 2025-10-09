@@ -173,6 +173,50 @@ library LibDiamond {
     }
 
     //*//////////////////////////////////////////////////////////////////////////
+    //                               VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*//
+
+    function _selectorToFacet(bytes4 _selector) internal view returns (address) {
+        return _selectorToFacet(_diamondStorage(), _selector);
+    }
+
+    function _selectorToFacetPosition(bytes4 _selector) internal view returns (uint96) {
+        return _selectorToFacetPosition(_diamondStorage(), _selector);
+    }
+
+    function _facetToSelectors(address _facetAddress) internal view returns (bytes4[] memory) {
+        return _facetToSelectors(_diamondStorage(), _facetAddress);
+    }
+
+    function _facetToSelectorPosition(address _facetAddress) internal view returns (uint256) {
+        return _facetToSelectorPosition(_diamondStorage(), _facetAddress);
+    }
+
+    function _selectorToFacet(DiamondStorage storage _ds, bytes4 _selector) private view returns (address) {
+        return _ds.selectorToFacetAndPosition[_selector].facetAddress;
+    }
+
+    function _selectorToFacetPosition(DiamondStorage storage _ds, bytes4 _selector) private view returns (uint96) {
+        return _ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;
+    }
+
+    function _facetToSelectors(DiamondStorage storage _ds, address _facetAddress)
+        private
+        view
+        returns (bytes4[] memory)
+    {
+        return _ds.facetToSelectorsAndPosition[_facetAddress].functionSelectors;
+    }
+
+    function _facetToSelectorPosition(DiamondStorage storage _ds, address _facetAddress)
+        private
+        view
+        returns (uint256)
+    {
+        return _ds.facetToSelectorsAndPosition[_facetAddress].facetAddressPosition;
+    }
+
+    //*//////////////////////////////////////////////////////////////////////////
     //                            DIAMOND INITIALIZER
     //////////////////////////////////////////////////////////////////////////*//
 
