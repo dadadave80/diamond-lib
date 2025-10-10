@@ -176,8 +176,9 @@ library LibDiamond {
     //                               VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*//
 
-    function _selectorToFacet(bytes4 _selector) internal view returns (address) {
-        return _selectorToFacet(_diamondStorage(), _selector);
+    function _selectorToFacet(bytes4 _selector) internal view returns (address facet_) {
+        facet_ = _selectorToFacet(_diamondStorage(), _selector);
+        if (facet_ == address(0)) revert FunctionDoesNotExist(msg.sig);
     }
 
     function _selectorToFacetPosition(bytes4 _selector) internal view returns (uint96) {
