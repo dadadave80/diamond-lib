@@ -58,7 +58,6 @@ abstract contract Diamond {
         _beforeFallback();
         // Lookup facet for function selector
         address facet = LibDiamond._diamondStorage().selectorToFacetAndPosition[msg.sig].facetAddress;
-        if (facet == address(0)) revert FunctionDoesNotExist(msg.sig);
 
         assembly {
             // Copy calldata to memory
