@@ -11,3 +11,6 @@ remappings = [
     '@diamond-errors/=src/libraries/errors/'
 ]
 optimizer_runs = 20_000
+
+[fmt]
+sort_imports = true
