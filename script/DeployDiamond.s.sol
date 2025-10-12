@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Script} from "forge-std/Script.sol";
-import {Diamond} from "@diamond/Diamond.sol";
+import {FacetCut, FacetCutAction} from "@diamond-storage/DiamondStorage.sol";
+import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
+import {MockDiamond} from "@diamond-test/mocks/MockDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
-import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
-import {FacetCutAction, FacetCut, DiamondArgs} from "@diamond-storage/DiamondStorage.sol";
-import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
+import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
+import {Script} from "forge-std/Script.sol";
 
 /// @title DeployDiamond
 /// @notice Deployment script for an EIP-2535 Diamond proxy contract with core facets and ERC165 initialization
@@ -28,14 +28,7 @@ contract DeployDiamond is Script, GetSelectors {
         OwnableRolesFacet ownableRolesFacet = new OwnableRolesFacet();
 
         // Deploy ERC165 initializer contract
-        ERC165Init erc165Init = new ERC165Init();
-
-        // Prepare DiamondArgs: owner and init data
-        DiamondArgs memory args = DiamondArgs({
-            owner: msg.sender,
-            init: address(erc165Init),
-            initData: abi.encodeWithSignature("initErc165()")
-        });
+        address diamondInit = address(new DiamondInit());
 
         // Create an array of FacetCut entries for standard facets
         FacetCut[] memory cut = new FacetCut[](3);
@@ -62,7 +55,8 @@ contract DeployDiamond is Script, GetSelectors {
         });
 
         // Deploy the Diamond contract with the facets and initialization args
-        Diamond diamond = new Diamond(cut, args);
+        MockDiamond diamond =
+            new MockDiamond(cut, diamondInit, abi.encodeWithSignature("initDiamond(address)", msg.sender));
         diamond_ = address(diamond);
         vm.stopBroadcast();
     }
