@@ -11,4 +11,3 @@ remappings = [
     '@diamond-errors/=src/libraries/errors/'
 ]
 optimizer_runs = 20_000
-ffi = true
