@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 import {Facet} from "@diamond-storage/DiamondStorage.sol";
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
+import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 
 /// @title DiamondLoupeFacet
 /// @notice Provides read-only functions to inspect the state of a Diamond proxy, including facets, function selectors, and supported interfaces
