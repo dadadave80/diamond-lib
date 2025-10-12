@@ -2,18 +2,22 @@
 pragma solidity ^0.8.20;
 
 import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
+import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 
-/// @title ERC165Init
+/// @title DiamondInit
 /// @notice Provides an initializer to register standard interface support (ERC-165, ERC-173, IDiamondCut, IDiamondLoupe)
 /// @author David Dada
 /// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/upgradeInitializers/DiamondInit.sol)
 ///
-/// @dev Intended to be called as the `initERC165` function in a diamond cut to set up ERC-165 interface IDs
-contract ERC165Init {
+/// @dev Intended to be called as the `initDiamond` function in a diamond cut to set up ERC-165 interface IDs
+contract DiamondInit {
     /// @notice Initialize the contract with the ERC165 interface support.
     /// @dev This function is called during the diamond cut process to set up
     ///      the initial state of the contract.
-    function initErc165() public {
+    function initDiamond(address _owner) public {
+        // Initialize the owner
+        LibOwnableRoles._initializeOwner(_owner);
+
         DiamondStorage storage ds = LibDiamond._diamondStorage();
         /// @dev type(ERC165).interfaceId
         ds.supportedInterfaces[0x01ffc9a7] = true;
