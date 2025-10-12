@@ -23,10 +23,6 @@ error CannotAddSelectorsToZeroAddress(bytes4[] selectors);
 /// @param contractAddress The address checked for deployed bytecode
 error NoBytecodeAtAddress(address contractAddress);
 
-/// @notice Thrown when an unrecognized action is passed to the diamond cut
-/// @param action The raw uint8 action value provided
-error IncorrectFacetCutAction(uint8 action);
-
 /// @notice Thrown when adding a function selector that already exists in the diamond
 /// @param selector The selector that is already present
 error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 selector);
