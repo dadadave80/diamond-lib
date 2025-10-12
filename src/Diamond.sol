@@ -34,12 +34,9 @@ import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 */
 
 /// @title Diamond
-/// @notice Implements EIP-2535 Diamond proxy pattern, allowing dynamic addition, replacement, and removal of facets
-/// @author David Dada
-/// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/Diamond.sol)
-/// @author Modified from Timo (https://github.com/FydeTreasury/Diamond-Foundry/blob/main/src/Diamond.sol)
-///
-/// @dev Uses LibDiamond for facet management and LibOwnableRoles for ownership initialization
+/// @notice Implements ERC-2535 Diamond proxy pattern, allowing dynamic addition, replacement, and removal of facets
+/// @author Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/Diamond.sol)
+/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 abstract contract Diamond {
     /// @notice Initializes the Diamond proxy with the provided facets and initialization parameters
     /// @param _facetCuts Array of FacetCut structs defining facet addresses, corresponding function selectors, and actions (Add, Replace, Remove)

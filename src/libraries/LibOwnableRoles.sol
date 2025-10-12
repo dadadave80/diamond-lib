@@ -3,8 +3,8 @@ pragma solidity ^0.8.20;
 
 /// @title LibOwnableRoles
 /// @notice Simple single owner and multiroles authorization mixin.
-/// @author David Dada
-/// @author Modified from Solady (https://github.com/vectorized/solady/blob/main/src/auth/OwnableRoles.sol)
+/// @author Vectorized (https://github.com/vectorized/solady/blob/main/src/auth/OwnableRoles.sol)
+/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 ///
 /// @dev Note:
 /// This implementation does NOT auto-initialize the owner to `msg.sender`.
