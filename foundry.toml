@@ -10,7 +10,8 @@ remappings = [
     '@diamond-logs/=src/libraries/logs/',
     '@diamond-errors/=src/libraries/errors/'
 ]
-optimizer_runs = 20_000
+optimizer_runs = 999_999
+via_ir = false
 
 [fmt]
 sort_imports = true
