@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {DiamondStorage, FacetCut, FacetCutAction, DIAMOND_STORAGE_LOCATION} from "@diamond-storage/DiamondStorage.sol";
+import {DIAMOND_STORAGE_LOCATION, DiamondStorage, FacetCut, FacetCutAction} from "@diamond-storage/DiamondStorage.sol";
 import {DiamondCut} from "@diamond/libraries/logs/DiamondLogs.sol";
 /// forge-lint: disable-next-line(unaliased-plain-import)
 import "@diamond-errors/DiamondErrors.sol";
