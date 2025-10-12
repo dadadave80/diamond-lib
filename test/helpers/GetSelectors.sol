@@ -8,24 +8,17 @@ abstract contract GetSelectors is Test {
     /// @dev Uses `vm.ffi` to execute a shell command that retrieves method identifiers.
     /// @param _facet The name of the facet contract to inspect.
     /// @return selectors_ An array of function selectors extracted from the facet.
-    function _getSelectors(string memory _facet) internal returns (bytes4[] memory selectors_) {
-        string[] memory cmd = new string[](5);
-        cmd[0] = "forge";
-        cmd[1] = "inspect";
-        cmd[2] = _facet;
-        cmd[3] = "methodIdentifiers";
-        cmd[4] = "--json";
+    function _getSelectors(string memory _facet) internal view returns (bytes4[] memory selectors_) {
+        string memory path = string.concat("out/", _facet, ".sol/", _facet, ".json");
+        // forge-lint: disable-next-line(unsafe-cheatcode)
+        string memory artifact = vm.readFile(path);
 
-        bytes memory res = vm.ffi(cmd);
-        string memory output = string(res);
-
-        string[] memory keys = vm.parseJsonKeys(output, "");
+        string[] memory keys = vm.parseJsonKeys(artifact, "$.methodIdentifiers");
         uint256 keysLength = keys.length;
-
         selectors_ = new bytes4[](keysLength);
 
         for (uint256 i; i < keysLength; ++i) {
-            selectors_[i] = bytes4(bytes32(keccak256(bytes(keys[i]))));
+            selectors_[i] = bytes4(keccak256(bytes(keys[i])));
         }
     }
 }
