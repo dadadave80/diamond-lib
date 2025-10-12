@@ -8,6 +8,7 @@ import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
 import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
+import {LibContext} from "@diamond/libraries/LibContext.sol";
 import {Script} from "forge-std/Script.sol";
 
 /// @title DeployDiamond
@@ -56,7 +57,7 @@ contract DeployDiamond is Script, GetSelectors {
 
         // Deploy the Diamond contract with the facets and initialization args
         MockDiamond diamond =
-            new MockDiamond(cut, diamondInit, abi.encodeWithSignature("initDiamond(address)", msg.sender));
+            new MockDiamond(cut, diamondInit, abi.encodeWithSignature("initDiamond(address)", LibContext._msgSender()));
         diamond_ = address(diamond);
         vm.stopBroadcast();
     }
