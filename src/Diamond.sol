@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {DiamondArgs, DiamondStorage, FacetCut} from "@diamond-storage/DiamondStorage.sol";
-import {FunctionDoesNotExist} from "@diamond-errors/DiamondErrors.sol";
+import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
 import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
-import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 
 /*
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
@@ -39,29 +37,38 @@ import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 /// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 abstract contract Diamond {
     /// @notice Initializes the Diamond proxy with the provided facets and initialization parameters
-    /// @param _facetCuts Array of FacetCut structs defining facet addresses, corresponding function selectors, and actions (Add, Replace, Remove)
-    /// @param _args Struct containing the initial owner address, optional init contract address, and init calldata
-        LibOwnableRoles._initializeOwner(_args.owner);
-        LibDiamond._diamondCut(_diamondCut, _args.init, _args.initData);
+    /// @param _init Address of the initialization contract
+    /// @param _calldata Calldata to be passed to the initialization contract
+    constructor(FacetCut[] memory _facetCuts, address _init, bytes memory _calldata) payable {
+        _diamondCut(_facetCuts, _init, _calldata);
     }
 
     /// @notice Receive function to accept plain Ether transfers
     /// @dev Allows contract to receive Ether without data
-    receive() external payable {}
+    receive() external payable virtual {}
 
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
-    fallback() external payable {
-        _beforeFallback();
-        // Lookup facet for function selector
-        address facet = LibDiamond._diamondStorage().selectorToFacetAndPosition[msg.sig].facetAddress;
+    fallback() external payable virtual {
+        _beforeDelegate();
+        _delegate(_implementation());
+    }
 
+    /// @notice Retrieves the implementation address for the current function call
+    /// @dev Implementation and Facet are synonyms in a Diamond Proxy
+    function _implementation() internal virtual returns (address) {
+        return LibDiamond._selectorToFacet(msg.sig);
+    }
+
+    /// @notice Internal function to perform a delegatecall to an implementation
+    /// @param _facet Address of the implementation to delegate to
+    function _delegate(address _facet) internal virtual {
         assembly {
             // Copy calldata to memory
             calldatacopy(0, 0, calldatasize())
 
-            // Delegate call to facet
-            let result := delegatecall(gas(), facet, 0, calldatasize(), 0, 0)
+            // Delegate call to implementation
+            let result := delegatecall(gas(), _facet, 0, calldatasize(), 0, 0)
 
             // Copy returned data
             returndatacopy(0, 0, returndatasize())
@@ -73,5 +80,12 @@ abstract contract Diamond {
         }
     }
 
-    function _beforeFallback() internal virtual {}
+    /// @notice Internal function to perform a diamond cut
+    function _diamondCut(FacetCut[] memory _facetCuts, address _init, bytes memory _calldata) internal virtual {
+        LibDiamond._diamondCut(_facetCuts, _init, _calldata);
+    }
+
+    /// @notice Internal hook function to run before a delegatecall to the facet
+    /// @dev This function can be replaced to perform additional logic before the delegatecall
+    function _beforeDelegate() internal virtual;
 }
