@@ -74,4 +74,4 @@ error FunctionDoesNotExist(bytes4 functionSelector);
 
 /// @notice Thrown when the length of the address array does not match the length of the calldata array.
 /// @dev Used in initializer logic to ensure one-to-one mapping between addresses and initialization calldata.
-error AddressAndCalldataLengthDoNotMatch();
+error AddressAndCalldataLengthMismatch();
