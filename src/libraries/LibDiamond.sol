@@ -8,8 +8,8 @@ import "@diamond-errors/DiamondErrors.sol";
 
 /// @title LibDiamond
 /// @notice Internal library providing core functionality for ERC-2535 Diamond proxy management.
-/// @author David Dada
-/// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/libraries/LibDiamond.sol)
+/// @author Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/libraries/LibDiamond.sol)
+/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 ///
 /// @dev Defines the diamond storage layout and implements the `_diamondCut` operation and storage accessors
 library LibDiamond {
