@@ -13,7 +13,7 @@ error NoSelectorsGivenToAdd();
 
 /// @notice Thrown when no function selectors are provided for a given facet in a cut
 /// @param facetAddress The facet contract address for which selectors were expected
-error NoSelectorsProvidedForFacetForCut(address facetAddress);
+error NoSelectorsProvidedForFacetCut(address facetAddress);
 
 /// @notice Thrown when trying to add selectors under the zero address (invalid facet)
 /// @param selectors The selectors attempted to be added
@@ -58,7 +58,7 @@ error CannotRemoveImmutableFunction(bytes4 selector);
 /// @notice Thrown when the initialization call following a diamond cut reverts
 /// @param initAddress The address of the init contract that reverted
 /// @param data The calldata passed to the init contract
-error InitializationFunctionReverted(address initAddress, bytes data);
+error InitializeDiamondCutReverted(address initAddress, bytes data);
 
 //*//////////////////////////////////////////////////////////////////////////
 //                               DIAMOND ERRORS

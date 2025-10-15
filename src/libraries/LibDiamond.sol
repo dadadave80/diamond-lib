@@ -8,8 +8,8 @@ import "@diamond-errors/DiamondErrors.sol";
 
 /// @title LibDiamond
 /// @notice Internal library providing core functionality for ERC-2535 Diamond proxy management.
-/// @author David Dada
-/// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/libraries/LibDiamond.sol)
+/// @author Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/libraries/LibDiamond.sol)
+/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 ///
 /// @dev Defines the diamond storage layout and implements the `_diamondCut` operation and storage accessors
 library LibDiamond {
@@ -103,7 +103,7 @@ library LibDiamond {
     {
         uint256 functionSelectorsLength = _functionSelectors.length;
         if (_facetAddress != address(0)) revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
-        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetForCut(_facetAddress);
+        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetCut(_facetAddress);
         for (uint256 i; i < functionSelectorsLength; ++i) {
             bytes4 selector = _functionSelectors[i];
             address oldFacetAddress = _selectorToFacet(_ds, selector);
@@ -194,9 +194,11 @@ library LibDiamond {
         address _facetAddress,
         bytes4[] calldata _functionSelectors
     ) internal {
+        if (_facetAddress != address(0)) {
+            revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
+        }
         uint256 functionSelectorsLength = _functionSelectors.length;
-        if (_facetAddress != address(0)) revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
-        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetForCut(_facetAddress);
+        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetCut(_facetAddress);
         for (uint256 i; i < functionSelectorsLength; ++i) {
             bytes4 selector = _functionSelectors[i];
             address oldFacetAddress = _selectorToFacet(_ds, selector);
@@ -326,7 +328,7 @@ library LibDiamond {
                     revert(add(32, err), returndata_size)
                 }
             } else {
-                revert InitializationFunctionReverted(_init, _calldata);
+                revert InitializeDiamondCutReverted(_init, _calldata);
             }
         }
     }
@@ -347,7 +349,7 @@ library LibDiamond {
                     revert(add(32, err), returndata_size)
                 }
             } else {
-                revert InitializationFunctionReverted(_init, _calldata);
+                revert InitializeDiamondCutReverted(_init, _calldata);
             }
         }
     }

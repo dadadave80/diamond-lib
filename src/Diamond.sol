@@ -43,21 +43,11 @@ abstract contract Diamond {
         _diamondCut(_facetCuts, _init, _calldata);
     }
 
-    /// @notice Receive function to accept plain Ether transfers
-    /// @dev Allows contract to receive Ether without data
-    receive() external payable virtual {}
-
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
     fallback() external payable virtual {
         _beforeDelegate();
         _delegate(_facet());
-    }
-
-    /// @notice Retrieves the implementation address for the current function call
-    /// @dev A Facet is one of many implementations in a Diamond Proxy
-    function _facet() internal virtual returns (address) {
-        return LibDiamond._selectorToFacet(msg.sig);
     }
 
     /// @notice Internal function to perform a delegatecall to an implementation
@@ -88,4 +78,10 @@ abstract contract Diamond {
     /// @notice Internal hook function to run before a delegatecall to the facet
     /// @dev This function can be replaced to perform additional logic before the delegatecall
     function _beforeDelegate() internal virtual {}
+
+    /// @notice Retrieves the implementation address for the current function call
+    /// @dev A Facet is one of many implementations in a Diamond Proxy
+    function _facet() internal view virtual returns (address) {
+        return LibDiamond._selectorToFacet(msg.sig);
+    }
 }
