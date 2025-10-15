@@ -103,7 +103,7 @@ library LibDiamond {
     {
         uint256 functionSelectorsLength = _functionSelectors.length;
         if (_facetAddress != address(0)) revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
-        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetForCut(_facetAddress);
+        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetCut(_facetAddress);
         for (uint256 i; i < functionSelectorsLength; ++i) {
             bytes4 selector = _functionSelectors[i];
             address oldFacetAddress = _selectorToFacet(_ds, selector);
@@ -194,9 +194,9 @@ library LibDiamond {
         address _facetAddress,
         bytes4[] calldata _functionSelectors
     ) internal {
-        uint256 functionSelectorsLength = _functionSelectors.length;
         if (_facetAddress != address(0)) revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
-        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetForCut(_facetAddress);
+        uint256 functionSelectorsLength = _functionSelectors.length;
+        if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetCut(_facetAddress);
         for (uint256 i; i < functionSelectorsLength; ++i) {
             bytes4 selector = _functionSelectors[i];
             address oldFacetAddress = _selectorToFacet(_ds, selector);
@@ -326,7 +326,7 @@ library LibDiamond {
                     revert(add(32, err), returndata_size)
                 }
             } else {
-                revert InitializationFunctionReverted(_init, _calldata);
+                revert InitializeDiamondCutReverted(_init, _calldata);
             }
         }
     }
@@ -347,7 +347,7 @@ library LibDiamond {
                     revert(add(32, err), returndata_size)
                 }
             } else {
-                revert InitializationFunctionReverted(_init, _calldata);
+                revert InitializeDiamondCutReverted(_init, _calldata);
             }
         }
     }
