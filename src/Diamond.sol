@@ -54,12 +54,6 @@ abstract contract Diamond {
         _delegate(_facet());
     }
 
-    /// @notice Retrieves the implementation address for the current function call
-    /// @dev A Facet is one of many implementations in a Diamond Proxy
-    function _facet() internal virtual returns (address) {
-        return LibDiamond._selectorToFacet(msg.sig);
-    }
-
     /// @notice Internal function to perform a delegatecall to an implementation
     /// @param _implementation Address of the implementation to delegate to
     function _delegate(address _implementation) internal virtual {
@@ -88,4 +82,10 @@ abstract contract Diamond {
     /// @notice Internal hook function to run before a delegatecall to the facet
     /// @dev This function can be replaced to perform additional logic before the delegatecall
     function _beforeDelegate() internal virtual {}
+
+    /// @notice Retrieves the implementation address for the current function call
+    /// @dev A Facet is one of many implementations in a Diamond Proxy
+    function _facet() internal view virtual returns (address) {
+        return LibDiamond._selectorToFacet(msg.sig);
+    }
 }
