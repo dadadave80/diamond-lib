@@ -194,7 +194,9 @@ library LibDiamond {
         address _facetAddress,
         bytes4[] calldata _functionSelectors
     ) internal {
-        if (_facetAddress != address(0)) revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
+        if (_facetAddress != address(0)) {
+            revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
+        }
         uint256 functionSelectorsLength = _functionSelectors.length;
         if (functionSelectorsLength == 0) revert NoSelectorsProvidedForFacetCut(_facetAddress);
         for (uint256 i; i < functionSelectorsLength; ++i) {
