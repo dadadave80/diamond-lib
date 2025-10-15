@@ -43,10 +43,6 @@ abstract contract Diamond {
         _diamondCut(_facetCuts, _init, _calldata);
     }
 
-    /// @notice Receive function to accept plain Ether transfers
-    /// @dev Allows contract to receive Ether without data
-    receive() external payable virtual {}
-
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
     fallback() external payable virtual {
