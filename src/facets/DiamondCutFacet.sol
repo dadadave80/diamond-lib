@@ -8,9 +8,8 @@ import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 
 /// @title DiamondCutFacet
 /// @notice Simple single owner and multiroles authorization mixin.
-/// @author David Dada
-/// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/facets/DiamondCutFacet.sol)
-/// @author Modified from Timo (https://github.com/FydeTreasury/Diamond-Foundry/blob/main/src/facets/DiamondCutFacet.sol)
+/// @author Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/Diamond.sol)
+/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 ///
 /// @dev Note:
 /// Remember to add the loupe functions from DiamondLoupeFacet to the diamond.

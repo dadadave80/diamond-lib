@@ -7,9 +7,8 @@ import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 
 /// @title DiamondLoupeFacet
 /// @notice Provides read-only functions to inspect the state of a Diamond proxy, including facets, function selectors, and supported interfaces
-/// @author David Dada
-/// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/facets/DiamondLoupeFacet.sol)
-/// @author Modified from Timo (https://github.com/FydeTreasury/Diamond-Foundry/blob/main/src/facets/DiamondLoupeFacet.sol)
+/// @author Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/Diamond.sol)
+/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 ///
 /// @dev Implements the IDiamondLoupe interface as defined in EIP-2535
 contract DiamondLoupeFacet is IDiamondLoupe {

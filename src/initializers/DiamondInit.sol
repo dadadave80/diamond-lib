@@ -6,8 +6,8 @@ import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 
 /// @title DiamondInit
 /// @notice Provides an initializer to register standard interface support (ERC-165, ERC-173, IDiamondCut, IDiamondLoupe)
-/// @author David Dada
-/// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/upgradeInitializers/DiamondInit.sol)
+/// @author Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/Diamond.sol)
+/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 ///
 /// @dev Intended to be called as the `initDiamond` function in a diamond cut to set up ERC-165 interface IDs
 contract DiamondInit {
