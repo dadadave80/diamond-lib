@@ -16,9 +16,6 @@ event DiamondCut(FacetCut[] diamondCut, address init, bytes data);
 //                           DIAMOND LIBRARY ERRORS
 //////////////////////////////////////////////////////////////////////////*//
 
-/// @notice Thrown when a diamond cut is attempted with no facets specified
-error NoFacetsInDiamondCut();
-
 /// @notice Thrown when attempting a diamond cut with no function selectors specified to add
 error NoSelectorsGivenToAdd();
 
@@ -38,21 +35,9 @@ error NoBytecodeAtAddress(address contractAddress);
 /// @param selector The selector that is already present
 error CannotAddFunctionToDiamondThatAlreadyExists(bytes4 selector);
 
-/// @notice Thrown when replacing selectors but the replacement facet address is zero
-/// @param selectors The selectors attempted to be replaced
-error CannotReplaceFunctionsFromFacetWithZeroAddress(bytes4[] selectors);
-
-/// @notice Thrown when attempting to replace a function in the diamond
-/// @param selector The selector of the immutable function
-error CannotReplaceImmutableFunction(bytes4 selector);
-
 /// @notice Thrown when replacing a function with the same implementation from the same facet
 /// @param selector The selector that would result in a no-op replace
 error CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(bytes4 selector);
-
-/// @notice Thrown when attempting to replace a function that does not currently exist
-/// @param selector The selector missing from the diamond
-error CannotReplaceFunctionThatDoesNotExists(bytes4 selector);
 
 /// @notice Thrown when removing a facet but the facet address provided is non-zero
 /// @param facetAddress The address that should have been zero for removals
