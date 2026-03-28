@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
-import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
+import {DiamondLib, DiamondStorage} from "@diamond/libraries/DiamondLib.sol";
+import {OwnableRolesLib} from "@diamond/libraries/OwnableRolesLib.sol";
 
 /// @title DiamondInit
 /// @notice Provides an initializer to register standard interface support (ERC-165, ERC-173, IDiamondCut, IDiamondLoupe)
@@ -16,9 +16,9 @@ contract DiamondInit {
     ///      the initial state of the contract.
     function initDiamond(address _owner) public {
         // Initialize the owner
-        LibOwnableRoles._initializeOwner(_owner);
+        OwnableRolesLib._initializeOwner(_owner);
 
-        DiamondStorage storage ds = LibDiamond._diamondStorage();
+        DiamondStorage storage ds = DiamondLib.diamondStorage();
         /// @dev type(ERC165).interfaceId
         ds.supportedInterfaces[0x01ffc9a7] = true;
         /// @dev type(IERC173).interfaceId

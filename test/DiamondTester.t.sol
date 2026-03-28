@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Facet} from "@diamond-storage/DiamondStorage.sol";
 import {Utils} from "@diamond-test/helpers/Utils.sol";
 import {DeployedDiamondState} from "@diamond-test/states/DeployedDiamondState.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
+import {Facet} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title DiamondTester
 /// @notice Contains test cases to validate the deployment and structure of the Diamond contract.

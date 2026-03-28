@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {FacetCut, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
+import {DiamondLib, FacetCut} from "@diamond/libraries/DiamondLib.sol";
 
 /*
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
@@ -64,14 +64,18 @@ abstract contract Diamond {
 
             // Revert or return based on the result
             switch result
-            case 0 { revert(0, returndatasize()) }
-            default { return(0, returndatasize()) }
+            case 0 {
+                revert(0, returndatasize())
+            }
+            default {
+                return(0, returndatasize())
+            }
         }
     }
 
     /// @notice Internal function to perform a diamond cut
     function _diamondCut(FacetCut[] memory _facetCuts, address _init, bytes memory _calldata) internal virtual {
-        LibDiamond._diamondCut(_facetCuts, _init, _calldata);
+        DiamondLib.diamondCut(_facetCuts, _init, _calldata);
     }
 
     /// @notice Internal hook function to run before a delegatecall to the facet
@@ -81,6 +85,6 @@ abstract contract Diamond {
     /// @notice Retrieves the implementation address for the current function call
     /// @dev A Facet is one of many implementations in a Diamond Proxy
     function _facet() internal view virtual returns (address) {
-        return LibDiamond._selectorToFacet(msg.sig);
+        return DiamondLib.selectorToFacet(msg.sig);
     }
 }

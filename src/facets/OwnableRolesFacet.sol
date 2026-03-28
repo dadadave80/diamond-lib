@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
+import {OwnableRolesLib} from "@diamond/libraries/OwnableRolesLib.sol";
 
 /// @title OwnableRolesFacet
 /// @notice Simple single owner and multiroles authorization mixin.
@@ -16,7 +16,7 @@ import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
 /// [EIP-173](https://eips.ethereum.org/EIPS/eip-173) for compatibility,
 /// the nomenclature for the 2-step ownership handover may be unique to this codebase.
 contract OwnableRolesFacet {
-    using LibOwnableRoles for *;
+    using OwnableRolesLib for *;
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                  PUBLIC UPDATE FUNCTIONS                   */
@@ -29,18 +29,18 @@ contract OwnableRolesFacet {
 
     /// @dev Allows the owner to renounce their ownership.
     function renounceOwnership() public onlyOwner {
-        LibOwnableRoles._renounceOwnership();
+        OwnableRolesLib._renounceOwnership();
     }
 
     /// @dev Request a two-step ownership handover to the caller.
     /// The request will automatically expire in 48 hours (172800 seconds) by default.
     function requestOwnershipHandover() public {
-        LibOwnableRoles._requestOwnershipHandover();
+        OwnableRolesLib._requestOwnershipHandover();
     }
 
     /// @dev Cancels the two-step ownership handover to the caller, if any.
     function cancelOwnershipHandover() public {
-        LibOwnableRoles._cancelOwnershipHandover();
+        OwnableRolesLib._cancelOwnershipHandover();
     }
 
     /// @dev Allows the owner to complete the two-step ownership handover to `pendingOwner`.
@@ -73,7 +73,7 @@ contract OwnableRolesFacet {
 
     /// @dev Returns the owner of the contract.
     function owner() public view returns (address) {
-        return LibOwnableRoles._owner();
+        return OwnableRolesLib._owner();
     }
 
     /// @dev Returns the expiry timestamp for the two-step ownership handover to `pendingOwner`.
@@ -116,27 +116,27 @@ contract OwnableRolesFacet {
 
     /// @dev Marks a function as only callable by the owner.
     modifier onlyOwner() {
-        LibOwnableRoles._checkOwner();
+        OwnableRolesLib._checkOwner();
         _;
     }
 
     /// @dev Marks a function as only callable by an account with `roles`.
     modifier onlyRoles(uint256 _roles) {
-        LibOwnableRoles._checkRoles(_roles);
+        OwnableRolesLib._checkRoles(_roles);
         _;
     }
 
     /// @dev Marks a function as only callable by the owner or by an account
     ///      with `roles`. Checks for ownership first, then lazily checks for roles.
     modifier onlyOwnerOrRoles(uint256 _roles) {
-        LibOwnableRoles._checkOwnerOrRoles(_roles);
+        OwnableRolesLib._checkOwnerOrRoles(_roles);
         _;
     }
 
     /// @dev Marks a function as only callable by an account with `roles` or the owner.
     /// Checks for roles first, then lazily checks for ownership.
     modifier onlyRolesOrOwner(uint256 _roles) {
-        LibOwnableRoles._checkRolesOrOwner(_roles);
+        OwnableRolesLib._checkRolesOrOwner(_roles);
         _;
     }
 }
