@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
-import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
+import {FacetCut, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
 
 /*
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
