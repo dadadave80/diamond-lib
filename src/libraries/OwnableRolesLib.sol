@@ -13,7 +13,7 @@ pragma solidity ^0.8.20;
 /// While the ownable portion follows
 /// [EIP-173](https://eips.ethereum.org/EIPS/eip-173) for compatibility,
 /// the nomenclature for the 2-step ownership handover may be unique to this codebase.
-library LibOwnableRoles {
+library OwnableRolesLib {
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                       CUSTOM ERRORS                        */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
@@ -217,7 +217,9 @@ library LibOwnableRoles {
             // Compute the updated roles if `on` is false.
             // Use `and` to compute the intersection of `current` and `roles`,
             // `xor` it with `current` to flip the bits in the intersection.
-            if iszero(on) { updated := xor(current, and(current, roles)) }
+            if iszero(on) {
+                updated := xor(current, and(current, roles))
+            }
             // Then, store the new value.
             sstore(roleSlot, updated)
             // Emit the {RolesUpdated} event.
@@ -304,7 +306,11 @@ library LibOwnableRoles {
     function _rolesFromOrdinals(uint8[] memory ordinals) internal pure returns (uint256 roles) {
         /// @solidity memory-safe-assembly
         assembly {
-            for { let i := shl(5, mload(ordinals)) } i { i := sub(i, 0x20) } {
+            for {
+                let i := shl(5, mload(ordinals))
+            } i {
+                i := sub(i, 0x20)
+            } {
                 // We don't need to mask the values of `ordinals`, as Solidity
                 // cleans dirty upper bits when storing variables into memory.
                 roles := or(shl(mload(add(ordinals, i)), 1), roles)
@@ -325,14 +331,18 @@ library LibOwnableRoles {
             let o := 0
             // The absence of lookup tables, De Bruijn, etc., here is intentional for
             // smaller bytecode, as this function is not meant to be called on-chain.
-            for { let t := roles } 1 {} {
+            for {
+                let t := roles
+            } 1 {} {
                 mstore(ptr, o)
                 // `shr` 5 is equivalent to multiplying by 0x20.
                 // Push back into the ordinals array if the bit is set.
                 ptr := add(ptr, shl(5, and(t, 1)))
                 o := add(o, 1)
                 t := shr(o, roles)
-                if iszero(t) { break }
+                if iszero(t) {
+                    break
+                }
             }
             // Store the length of `ordinals`.
             mstore(ordinals, shr(5, sub(ptr, add(ordinals, 0x20))))

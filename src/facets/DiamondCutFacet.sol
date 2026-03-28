@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
-import {LibDiamond} from "@diamond/libraries/LibDiamond.sol";
-import {LibOwnableRoles} from "@diamond/libraries/LibOwnableRoles.sol";
+import {DiamondLib, FacetCut} from "@diamond/libraries/DiamondLib.sol";
+import {OwnableRolesLib} from "@diamond/libraries/OwnableRolesLib.sol";
 
 /// @title DiamondCutFacet
 /// @notice Simple single owner and multiroles authorization mixin.
@@ -23,8 +22,8 @@ contract DiamondCutFacet is IDiamondCut {
     ///                  _calldata is executed with delegatecall on _init
     function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external payable {
         // Check that the caller is the owner
-        LibOwnableRoles._checkOwner();
+        OwnableRolesLib._checkOwner();
         // Call the diamond cut function from the library
-        LibDiamond._diamondCutCalldata(_diamondCut, _init, _calldata);
+        DiamondLib.diamondCutCalldata(_diamondCut, _init, _calldata);
     }
 }

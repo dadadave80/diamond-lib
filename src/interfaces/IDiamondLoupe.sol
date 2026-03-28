@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Facet} from "@diamond-storage/DiamondStorage.sol";
+import {Facet} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title IDiamondLoupe
 /// @notice Interface for diamond loupe (facet information) functionality

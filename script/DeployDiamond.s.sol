@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {FacetCut, FacetCutAction} from "@diamond-storage/DiamondStorage.sol";
 import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {MockDiamond} from "@diamond-test/mocks/MockDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
 import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
-import {LibContext} from "@diamond/libraries/LibContext.sol";
+import {ContextLib} from "@diamond/libraries/ContextLib.sol";
+import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
 import {Script} from "forge-std/Script.sol";
 
 /// @title DeployDiamond
@@ -57,7 +57,7 @@ contract DeployDiamond is Script, GetSelectors {
 
         // Deploy the Diamond contract with the facets and initialization args
         MockDiamond diamond =
-            new MockDiamond(cut, diamondInit, abi.encodeWithSignature("initDiamond(address)", LibContext._msgSender()));
+            new MockDiamond(cut, diamondInit, abi.encodeWithSignature("initDiamond(address)", ContextLib.msgSender()));
         diamond_ = address(diamond);
         vm.stopBroadcast();
     }

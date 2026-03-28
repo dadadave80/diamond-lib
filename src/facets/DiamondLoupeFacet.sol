@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Facet} from "@diamond-storage/DiamondStorage.sol";
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
-import {DiamondStorage, LibDiamond} from "@diamond/libraries/LibDiamond.sol";
+import {Facet} from "@diamond/libraries/DiamondLib.sol";
+import {DiamondLib, DiamondStorage} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title DiamondLoupeFacet
 /// @notice Provides read-only functions to inspect the state of a Diamond proxy, including facets, function selectors, and supported interfaces
@@ -15,7 +15,7 @@ contract DiamondLoupeFacet is IDiamondLoupe {
     /// @notice Gets all facet addresses and their function selectors.
     /// @return facets_ Facet
     function facets() external view returns (Facet[] memory facets_) {
-        DiamondStorage storage ds = LibDiamond._diamondStorage();
+        DiamondStorage storage ds = DiamondLib.diamondStorage();
         uint256 facetCount = ds.facetAddresses.length;
         facets_ = new Facet[](facetCount);
         for (uint256 i; i < facetCount; ++i) {
@@ -34,13 +34,13 @@ contract DiamondLoupeFacet is IDiamondLoupe {
         override
         returns (bytes4[] memory facetFunctionSelectors_)
     {
-        facetFunctionSelectors_ = LibDiamond._diamondStorage().facetToSelectorsAndPosition[_facet].functionSelectors;
+        facetFunctionSelectors_ = DiamondLib.diamondStorage().facetToSelectorsAndPosition[_facet].functionSelectors;
     }
 
     /// @notice Get all the facet addresses used by a diamond.
     /// @return facetAddresses_
     function facetAddresses() external view override returns (address[] memory facetAddresses_) {
-        facetAddresses_ = LibDiamond._diamondStorage().facetAddresses;
+        facetAddresses_ = DiamondLib.diamondStorage().facetAddresses;
     }
 
     /// @notice Gets the facet that supports the given selector.
@@ -48,7 +48,7 @@ contract DiamondLoupeFacet is IDiamondLoupe {
     /// @param _functionSelector The function selector.
     /// @return facetAddress_ The facet address.
     function facetAddress(bytes4 _functionSelector) external view override returns (address facetAddress_) {
-        facetAddress_ = LibDiamond._diamondStorage().selectorToFacetAndPosition[_functionSelector].facetAddress;
+        facetAddress_ = DiamondLib.diamondStorage().selectorToFacetAndPosition[_functionSelector].facetAddress;
     }
 
     /// @notice Query if a contract implements an interface
@@ -58,6 +58,6 @@ contract DiamondLoupeFacet is IDiamondLoupe {
     /// @return `true` if the contract implements `interfaceID` and
     ///  `interfaceID` is not 0xffffffff, `false` otherwise
     function supportsInterface(bytes4 _interfaceId) external view returns (bool) {
-        return LibDiamond._diamondStorage().supportedInterfaces[_interfaceId];
+        return DiamondLib.diamondStorage().supportedInterfaces[_interfaceId];
     }
 }
