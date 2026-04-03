@@ -101,11 +101,6 @@ library OwnableRolesLib {
     /*                     INTERNAL FUNCTIONS                     */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    /// @dev Override to return true to make `_initializeOwner` prevent double-initialization.
-    function _guardInitializeOwner() internal pure returns (bool) {
-        return true;
-    }
-
     /// @dev Initializes the owner directly without authorization guard.
     /// This function must be called upon initialization,
     /// regardless of whether the contract is upgradeable or not.
@@ -113,66 +108,38 @@ library OwnableRolesLib {
     /// and to save gas in case the initial owner is not the caller.
     /// For performance reasons, this function will not check if there
     /// is an existing owner.
-    function _initializeOwner(address newOwner) internal {
-        if (_guardInitializeOwner()) {
-            /// @solidity memory-safe-assembly
-            assembly {
-                let ownerSlot := _OWNER_SLOT
-                if sload(ownerSlot) {
-                    mstore(0x00, 0x0dc149f0) // `AlreadyInitialized()`.
-                    revert(0x1c, 0x04)
-                }
-                // Clean the upper 96 bits.
-                newOwner := shr(96, shl(96, newOwner))
-                // Store the new value.
-                sstore(ownerSlot, or(newOwner, shl(255, iszero(newOwner))))
-                // Emit the {OwnershipTransferred} event.
-                log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, 0, newOwner)
+    function initializeOwner(address newOwner) internal {
+        assembly ("memory-safe") {
+            let ownerSlot := _OWNER_SLOT
+            if sload(ownerSlot) {
+                mstore(0x00, 0x0dc149f0) // `AlreadyInitialized()`.
+                revert(0x1c, 0x04)
             }
-        } else {
-            /// @solidity memory-safe-assembly
-            assembly {
-                // Clean the upper 96 bits.
-                newOwner := shr(96, shl(96, newOwner))
-                // Store the new value.
-                sstore(_OWNER_SLOT, newOwner)
-                // Emit the {OwnershipTransferred} event.
-                log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, 0, newOwner)
-            }
+            // Clean the upper 96 bits.
+            newOwner := shr(96, shl(96, newOwner))
+            // Store the new value.
+            sstore(ownerSlot, or(newOwner, shl(255, iszero(newOwner))))
+            // Emit the {OwnershipTransferred} event.
+            log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, 0, newOwner)
         }
     }
 
     /// @dev Sets the owner directly without authorization guard.
-    function _setOwner(address newOwner) internal {
-        if (_guardInitializeOwner()) {
-            /// @solidity memory-safe-assembly
-            assembly {
-                let ownerSlot := _OWNER_SLOT
-                // Clean the upper 96 bits.
-                newOwner := shr(96, shl(96, newOwner))
-                // Emit the {OwnershipTransferred} event.
-                log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, sload(ownerSlot), newOwner)
-                // Store the new value.
-                sstore(ownerSlot, or(newOwner, shl(255, iszero(newOwner))))
-            }
-        } else {
-            /// @solidity memory-safe-assembly
-            assembly {
-                let ownerSlot := _OWNER_SLOT
-                // Clean the upper 96 bits.
-                newOwner := shr(96, shl(96, newOwner))
-                // Emit the {OwnershipTransferred} event.
-                log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, sload(ownerSlot), newOwner)
-                // Store the new value.
-                sstore(ownerSlot, newOwner)
-            }
+    function setOwner(address newOwner) internal {
+        assembly ("memory-safe") {
+            let ownerSlot := _OWNER_SLOT
+            // Clean the upper 96 bits.
+            newOwner := shr(96, shl(96, newOwner))
+            // Emit the {OwnershipTransferred} event.
+            log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, sload(ownerSlot), newOwner)
+            // Store the new value.
+            sstore(ownerSlot, or(newOwner, shl(255, iszero(newOwner))))
         }
     }
 
     /// @dev Throws if the sender is not the owner.
-    function _checkOwner() internal view {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function checkOwner() internal view {
+        assembly ("memory-safe") {
             // If the caller is not the stored owner, revert.
             if iszero(eq(caller(), sload(_OWNER_SLOT))) {
                 mstore(0x00, 0x82b42900) // `Unauthorized()`.
@@ -184,14 +151,13 @@ library OwnableRolesLib {
     /// @dev Returns how long a two-step ownership handover is valid for in seconds.
     /// Override to return a different value if needed.
     /// Made internal to conserve bytecode. Wrap it in a public function if needed.
-    function _ownershipHandoverValidFor() internal pure returns (uint64) {
+    function ownershipHandoverValidFor() internal pure returns (uint64) {
         return 48 * 3600;
     }
 
     /// @dev Overwrite the roles directly without authorization guard.
-    function _setRoles(address user, uint256 roles) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function setRoles(address user, uint256 roles) internal {
+        assembly ("memory-safe") {
             mstore(0x0c, _ROLE_SLOT_SEED)
             mstore(0x00, user)
             // Store the new value.
@@ -204,9 +170,8 @@ library OwnableRolesLib {
     /// @dev Updates the roles directly without authorization guard.
     /// If `on` is true, each set bit of `roles` will be turned on,
     /// otherwise, each set bit of `roles` will be turned off.
-    function _updateRoles(address user, uint256 roles, bool on) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function updateRoles(address user, uint256 roles, bool on) internal {
+        assembly ("memory-safe") {
             mstore(0x0c, _ROLE_SLOT_SEED)
             mstore(0x00, user)
             let roleSlot := keccak256(0x0c, 0x20)
@@ -229,20 +194,19 @@ library OwnableRolesLib {
 
     /// @dev Grants the roles directly without authorization guard.
     /// Each bit of `roles` represents the role to turn on.
-    function _grantRoles(address user, uint256 roles) internal {
-        _updateRoles(user, roles, true);
+    function grantRoles(address user, uint256 roles) internal {
+        updateRoles(user, roles, true);
     }
 
     /// @dev Removes the roles directly without authorization guard.
     /// Each bit of `roles` represents the role to turn off.
-    function _removeRoles(address user, uint256 roles) internal {
-        _updateRoles(user, roles, false);
+    function removeRoles(address user, uint256 roles) internal {
+        updateRoles(user, roles, false);
     }
 
     /// @dev Throws if the sender does not have any of the `roles`.
-    function _checkRoles(uint256 roles) internal view {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function checkRoles(uint256 roles) internal view {
+        assembly ("memory-safe") {
             // Compute the role slot.
             mstore(0x0c, _ROLE_SLOT_SEED)
             mstore(0x00, caller())
@@ -258,9 +222,8 @@ library OwnableRolesLib {
     /// @dev Throws if the sender is not the owner,
     /// and does not have any of the `roles`.
     /// Checks for ownership first, then lazily checks for roles.
-    function _checkOwnerOrRoles(uint256 roles) internal view {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function checkOwnerOrRoles(uint256 roles) internal view {
+        assembly ("memory-safe") {
             // If the caller is not the stored owner.
             // Note: `_ROLE_SLOT_SEED` is equal to `_OWNER_SLOT_NOT`.
             if iszero(eq(caller(), sload(not(_ROLE_SLOT_SEED)))) {
@@ -280,9 +243,8 @@ library OwnableRolesLib {
     /// @dev Throws if the sender does not have any of the `roles`,
     /// and is not the owner.
     /// Checks for roles first, then lazily checks for ownership.
-    function _checkRolesOrOwner(uint256 roles) internal view {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function checkRolesOrOwner(uint256 roles) internal view {
+        assembly ("memory-safe") {
             // Compute the role slot.
             mstore(0x0c, _ROLE_SLOT_SEED)
             mstore(0x00, caller())
@@ -303,9 +265,8 @@ library OwnableRolesLib {
     /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
     /// Not recommended to be called on-chain.
     /// Made internal to conserve bytecode. Wrap it in a public function if needed.
-    function _rolesFromOrdinals(uint8[] memory ordinals) internal pure returns (uint256 roles) {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function rolesFromOrdinals(uint8[] memory ordinals) internal pure returns (uint256 roles) {
+        assembly ("memory-safe") {
             for {
                 let i := shl(5, mload(ordinals))
             } i {
@@ -322,9 +283,8 @@ library OwnableRolesLib {
     /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
     /// Not recommended to be called on-chain.
     /// Made internal to conserve bytecode. Wrap it in a public function if needed.
-    function _ordinalsFromRoles(uint256 roles) internal pure returns (uint8[] memory ordinals) {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function ordinalsFromRoles(uint256 roles) internal pure returns (uint8[] memory ordinals) {
+        assembly ("memory-safe") {
             // Grab the pointer to the free memory.
             ordinals := mload(0x40)
             let ptr := add(ordinals, 0x20)
@@ -356,29 +316,27 @@ library OwnableRolesLib {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @dev Allows the owner to transfer the ownership to `newOwner`.
-    function _transferOwnership(address newOwner) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function transferOwnership(address newOwner) internal {
+        assembly ("memory-safe") {
             if iszero(shl(96, newOwner)) {
                 mstore(0x00, 0x7448fbae) // `NewOwnerIsZeroAddress()`.
                 revert(0x1c, 0x04)
             }
         }
-        _setOwner(newOwner);
+        setOwner(newOwner);
     }
 
     /// @dev Allows the owner to renounce their ownership.
-    function _renounceOwnership() internal {
-        _setOwner(address(0));
+    function renounceOwnership() internal {
+        setOwner(address(0));
     }
 
     /// @dev Request a two-step ownership handover to the caller.
     /// The request will automatically expire in 48 hours (172800 seconds) by default.
-    function _requestOwnershipHandover() internal {
+    function requestOwnershipHandover() internal {
         unchecked {
-            uint256 expires = block.timestamp + _ownershipHandoverValidFor();
-            /// @solidity memory-safe-assembly
-            assembly {
+            uint256 expires = block.timestamp + ownershipHandoverValidFor();
+            assembly ("memory-safe") {
                 // Compute and set the handover slot to `expires`.
                 mstore(0x0c, _HANDOVER_SLOT_SEED)
                 mstore(0x00, caller())
@@ -390,9 +348,8 @@ library OwnableRolesLib {
     }
 
     /// @dev Cancels the two-step ownership handover to the caller, if any.
-    function _cancelOwnershipHandover() internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function cancelOwnershipHandover() internal {
+        assembly ("memory-safe") {
             // Compute and set the handover slot to 0.
             mstore(0x0c, _HANDOVER_SLOT_SEED)
             mstore(0x00, caller())
@@ -404,9 +361,8 @@ library OwnableRolesLib {
 
     /// @dev Allows the owner to complete the two-step ownership handover to `pendingOwner`.
     /// Reverts if there is no existing ownership handover requested by `pendingOwner`.
-    function _completeOwnershipHandover(address pendingOwner) internal {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function completeOwnershipHandover(address pendingOwner) internal {
+        assembly ("memory-safe") {
             // Compute and set the handover slot to 0.
             mstore(0x0c, _HANDOVER_SLOT_SEED)
             mstore(0x00, pendingOwner)
@@ -419,7 +375,7 @@ library OwnableRolesLib {
             // Set the handover slot to 0.
             sstore(handoverSlot, 0)
         }
-        _setOwner(pendingOwner);
+        setOwner(pendingOwner);
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -427,17 +383,15 @@ library OwnableRolesLib {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @dev Returns the owner of the contract.
-    function _owner() internal view returns (address result) {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function owner() internal view returns (address result) {
+        assembly ("memory-safe") {
             result := sload(_OWNER_SLOT)
         }
     }
 
     /// @dev Returns the expiry timestamp for the two-step ownership handover to `pendingOwner`.
-    function _ownershipHandoverExpiresAt(address pendingOwner) internal view returns (uint256 result) {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function ownershipHandoverExpiresAt(address pendingOwner) internal view returns (uint256 result) {
+        assembly ("memory-safe") {
             // Compute the handover slot.
             mstore(0x0c, _HANDOVER_SLOT_SEED)
             mstore(0x00, pendingOwner)
@@ -447,9 +401,8 @@ library OwnableRolesLib {
     }
 
     /// @dev Returns the roles of `user`.
-    function _rolesOf(address user) internal view returns (uint256 roles) {
-        /// @solidity memory-safe-assembly
-        assembly {
+    function rolesOf(address user) internal view returns (uint256 roles) {
+        assembly ("memory-safe") {
             // Compute the role slot.
             mstore(0x0c, _ROLE_SLOT_SEED)
             mstore(0x00, user)
@@ -464,27 +417,27 @@ library OwnableRolesLib {
 
     /// @dev Marks a function as only callable by the owner.
     modifier onlyOwner() {
-        _checkOwner();
+        checkOwner();
         _;
     }
 
     /// @dev Marks a function as only callable by an account with `roles`.
     modifier onlyRoles(uint256 roles) {
-        _checkRoles(roles);
+        checkRoles(roles);
         _;
     }
 
     /// @dev Marks a function as only callable by the owner or by an account
     /// with `roles`. Checks for ownership first, then lazily checks for roles.
     modifier onlyOwnerOrRoles(uint256 roles) {
-        _checkOwnerOrRoles(roles);
+        checkOwnerOrRoles(roles);
         _;
     }
 
     /// @dev Marks a function as only callable by an account with `roles`
     /// or the owner. Checks for roles first, then lazily checks for ownership.
     modifier onlyRolesOrOwner(uint256 roles) {
-        _checkRolesOrOwner(roles);
+        checkRolesOrOwner(roles);
         _;
     }
 }
