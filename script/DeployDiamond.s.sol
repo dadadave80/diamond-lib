@@ -6,7 +6,9 @@ import {MockDiamond} from "@diamond-test/mocks/MockDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
-import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
+import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
+import {MultiInit} from "@diamond/initializers/MultiInit.sol";
+import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
 import {ContextLib} from "@diamond/libraries/ContextLib.sol";
 import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
 import {Script} from "forge-std/Script.sol";
@@ -28,8 +30,10 @@ contract DeployDiamond is Script, GetSelectors {
         DiamondLoupeFacet diamondLoupeFacet = new DiamondLoupeFacet();
         OwnableRolesFacet ownableRolesFacet = new OwnableRolesFacet();
 
-        // Deploy ERC165 initializer contract
-        address diamondInit = address(new DiamondInit());
+        // Deploy initializer contracts
+        address multiInit = address(new MultiInit());
+        address ownableInit = address(new OwnableInit());
+        address erc165Init = address(new ERC165Init());
 
         // Create an array of FacetCut entries for standard facets
         FacetCut[] memory cut = new FacetCut[](3);
@@ -55,9 +59,21 @@ contract DeployDiamond is Script, GetSelectors {
             functionSelectors: _getSelectors("OwnableRolesFacet")
         });
 
+        // Build MultiInit arrays for granular initialization
+        address[] memory initAddresses = new address[](2);
+        bytes[] memory initData = new bytes[](2);
+
+        initAddresses[0] = ownableInit;
+        initData[0] = abi.encodeWithSignature("initOwner(address)", ContextLib.msgSender());
+
+        initAddresses[1] = erc165Init;
+        initData[1] = abi.encodeWithSignature("initERC165()");
+
         // Deploy the Diamond contract with the facets and initialization args
-        MockDiamond diamond =
-            new MockDiamond(cut, diamondInit, abi.encodeWithSignature("initDiamond(address)", ContextLib.msgSender()));
+        MockDiamond diamond = new MockDiamond();
+        diamond.initialize(
+            cut, multiInit, abi.encodeWithSignature("multiInit(address[],bytes[])", initAddresses, initData)
+        );
         diamond_ = address(diamond);
         vm.stopBroadcast();
     }
