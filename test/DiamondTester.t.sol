@@ -32,7 +32,7 @@ contract DiamondTester is DeployedDiamondState {
 
     /// @notice Ensures all function selectors are registered correctly for each facet.
     /// @dev Compares generated selectors with those registered in the diamond via facetAddress().
-    function testSelectorsAreComplete() public view {
+    function testSelectorsAreComplete() public {
         for (uint256 i; i < facetAddresses.length; ++i) {
             bytes4[] memory fromGenSelectors = _getSelectors(facetNames[i]);
             for (uint256 j; j < fromGenSelectors.length; ++j) {
