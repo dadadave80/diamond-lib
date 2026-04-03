@@ -24,6 +24,6 @@ contract DiamondCutFacet is IDiamondCut {
         // Check that the caller is the owner
         OwnableRolesLib.checkOwner();
         // Call the diamond cut function from the library
-        DiamondLib.diamondCutCalldata(_diamondCut, _init, _calldata);
+        DiamondLib.diamondCut(_diamondCut, _init, _calldata);
     }
 }

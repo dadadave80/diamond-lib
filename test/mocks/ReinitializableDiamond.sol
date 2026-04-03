@@ -13,7 +13,7 @@ contract ReinitializableDiamond is Diamond {
         bytes32 s = InitializableLib.initializableSlot();
         InitializableLib.preReinitializer(s, _version);
 
-        DiamondLib.diamondCutCalldata(_facetCuts, _init, _calldata);
+        DiamondLib.diamondCut(_facetCuts, _init, _calldata);
 
         InitializableLib.postReinitializer(s, _version);
     }
