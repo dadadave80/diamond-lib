@@ -122,6 +122,8 @@ library InitializableLib {
 
     function postReinitializer(bytes32 _initializableSlot, uint64 _version) internal {
         assembly ("memory-safe") {
+            // Clean upper bits, and shift left by 1 to match storage layout.
+            _version := shl(1, and(_version, 0xffffffffffffffff))
             // Set `initializing` to 0, `initializedVersion` to `version`.
             sstore(_initializableSlot, _version)
             // Emit the {Initialized} event.
