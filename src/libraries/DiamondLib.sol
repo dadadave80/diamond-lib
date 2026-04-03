@@ -159,7 +159,7 @@ library DiamondLib {
     /// @param _facetCuts Contains the facet addresses, cut actions and function selectors.
     /// @param _init The address of the contract or facet to execute `data`.
     /// @param _calldata A function call, including function selector and arguments.
-    function diamondCut(FacetCut[] memory _facetCuts, address _init, bytes memory _calldata) internal {
+    function diamondCut(FacetCut[] calldata _facetCuts, address _init, bytes calldata _calldata) internal {
         DiamondStorage storage ds = diamondStorage();
         uint256 facetCutsLength = _facetCuts.length;
         for (uint256 i; i < facetCutsLength; ++i) {
@@ -179,7 +179,7 @@ library DiamondLib {
     /// @dev Add functions to the diamond.
     /// @param _facetAddress The address of the facet to add functions to.
     /// @param _functionSelectors The function selectors to add to the facet.
-    function addFunctions(DiamondStorage storage _ds, address _facetAddress, bytes4[] memory _functionSelectors)
+    function addFunctions(DiamondStorage storage _ds, address _facetAddress, bytes4[] calldata _functionSelectors)
         internal
     {
         uint256 functionSelectorsLength = _functionSelectors.length;
@@ -204,7 +204,7 @@ library DiamondLib {
     /// @dev Replace functions in the diamond.
     /// @param _facetAddress The address of the facet to replace functions from.
     /// @param _functionSelectors The function selectors to replace in the facet.
-    function replaceFunctions(DiamondStorage storage _ds, address _facetAddress, bytes4[] memory _functionSelectors)
+    function replaceFunctions(DiamondStorage storage _ds, address _facetAddress, bytes4[] calldata _functionSelectors)
         internal
     {
         uint256 functionSelectorsLength = _functionSelectors.length;
@@ -230,112 +230,9 @@ library DiamondLib {
     /// @dev Remove functions from the diamond.
     /// @param _facetAddress The address of the facet to remove functions from.
     /// @param _functionSelectors The function selectors to remove from the facet.
-    function removeFunctions(DiamondStorage storage _ds, address _facetAddress, bytes4[] memory _functionSelectors)
+    function removeFunctions(DiamondStorage storage _ds, address _facetAddress, bytes4[] calldata _functionSelectors)
         internal
     {
-        uint256 functionSelectorsLength = _functionSelectors.length;
-        if (_facetAddress != address(0)) {
-            revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
-        }
-        if (functionSelectorsLength == 0) {
-            revert NoSelectorsProvidedForFacetCut(_facetAddress);
-        }
-        for (uint256 i; i < functionSelectorsLength; ++i) {
-            bytes4 selector = _functionSelectors[i];
-            address oldFacetAddress = selectorToFacet(_ds, selector);
-            removeFunction(_ds, oldFacetAddress, selector);
-        }
-    }
-
-    //*//////////////////////////////////////////////////////////////////////////
-    //                            CALLDATA DIAMOND CUT
-    //////////////////////////////////////////////////////////////////////////*//
-
-    /// @dev Add/replace/remove any number of functions and optionally execute
-    ///      a function with delegatecall.
-    /// @param _facetCuts Contains the facet addresses, cut actions and function selectors.
-    /// @param _init The address of the contract or facet to execute `data`.
-    /// @param _calldata A function call, including function selector and arguments.
-    function diamondCutCalldata(FacetCut[] calldata _facetCuts, address _init, bytes calldata _calldata) internal {
-        DiamondStorage storage ds = diamondStorage();
-        uint256 facetCutsLength = _facetCuts.length;
-        for (uint256 i; i < facetCutsLength; ++i) {
-            if (_facetCuts[i].action == FacetCutAction.Add) {
-                addFunctionsCalldata(ds, _facetCuts[i].facetAddress, _facetCuts[i].functionSelectors);
-            } else if (_facetCuts[i].action == FacetCutAction.Replace) {
-                replaceFunctionsCalldata(ds, _facetCuts[i].facetAddress, _facetCuts[i].functionSelectors);
-            } else {
-                removeFunctionsCalldata(ds, _facetCuts[i].facetAddress, _facetCuts[i].functionSelectors);
-            }
-        }
-
-        initializeDiamondCutCalldata(_init, _calldata);
-        emit DiamondCut(_facetCuts, _init, _calldata);
-    }
-
-    /// @dev Add functions to the diamond.
-    /// @param _facetAddress The address of the facet to add functions to.
-    /// @param _functionSelectors The function selectors to add to the facet.
-    function addFunctionsCalldata(
-        DiamondStorage storage _ds,
-        address _facetAddress,
-        bytes4[] calldata _functionSelectors
-    ) internal {
-        uint256 functionSelectorsLength = _functionSelectors.length;
-        if (functionSelectorsLength == 0) revert NoSelectorsGivenToAdd();
-        if (_facetAddress == address(0)) {
-            revert CannotAddSelectorsToZeroAddress(_functionSelectors);
-        }
-        uint96 selectorPosition = uint96(facetToSelectors(_ds, _facetAddress).length);
-        // Add new facet address if it does not exist
-        if (selectorPosition == 0) addFacet(_ds, _facetAddress);
-        for (uint256 i; i < functionSelectorsLength; ++i) {
-            bytes4 selector = _functionSelectors[i];
-            address oldFacetAddress = selectorToFacet(_ds, selector);
-            if (oldFacetAddress != address(0)) {
-                revert CannotAddFunctionToDiamondThatAlreadyExists(selector);
-            }
-            addFunction(_ds, selector, selectorPosition, _facetAddress);
-            ++selectorPosition;
-        }
-    }
-
-    /// @dev Replace functions in the diamond.
-    /// @param _facetAddress The address of the facet to replace functions from.
-    /// @param _functionSelectors The function selectors to replace in the facet.
-    function replaceFunctionsCalldata(
-        DiamondStorage storage _ds,
-        address _facetAddress,
-        bytes4[] calldata _functionSelectors
-    ) internal {
-        uint256 functionSelectorsLength = _functionSelectors.length;
-        if (functionSelectorsLength == 0) revert NoSelectorsGivenToAdd();
-        if (_facetAddress == address(0)) {
-            revert CannotAddSelectorsToZeroAddress(_functionSelectors);
-        }
-        uint96 selectorPosition = uint96(facetToSelectors(_ds, _facetAddress).length);
-        // add new facet address if it does not exist
-        if (selectorPosition == 0) addFacet(_ds, _facetAddress);
-        for (uint256 i; i < functionSelectorsLength; ++i) {
-            bytes4 selector = _functionSelectors[i];
-            address oldFacetAddress = selectorToFacet(_ds, selector);
-            if (oldFacetAddress == _facetAddress) {
-                revert CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet(selector);
-            }
-            removeFunction(_ds, oldFacetAddress, selector);
-            addFunction(_ds, selector, selectorPosition, _facetAddress);
-            ++selectorPosition;
-        }
-    }
-
-    /// @dev Remove functions from the diamond.
-    /// @param _facetAddress The address of the facet to remove functions from.
-    /// @param _functionSelectors The function selectors to remove from the facet.
-    function removeFunctionsCalldata(
-        DiamondStorage storage _ds,
-        address _facetAddress,
-        bytes4[] calldata _functionSelectors
-    ) internal {
         if (_facetAddress != address(0)) {
             revert RemoveFacetAddressMustBeZeroAddress(_facetAddress);
         }
@@ -460,36 +357,14 @@ library DiamondLib {
     /// @dev Initialize the diamond cut.
     /// @param _init The address of the contract or facet to execute `data`.
     /// @param _calldata A function call, including function selector and arguments.
-    function initializeDiamondCut(address _init, bytes memory _calldata) internal {
+    function initializeDiamondCut(address _init, bytes calldata _calldata) internal {
         if (_init == address(0)) return;
         _enforceHasContractCode(_init);
         (bool success, bytes memory err) = _init.delegatecall(_calldata);
         if (!success) {
             if (err.length > 0) {
                 // bubble up error
-                /// @solidity memory-safe-assembly
-                assembly {
-                    let returndata_size := mload(err)
-                    revert(add(32, err), returndata_size)
-                }
-            } else {
-                revert InitializeDiamondCutReverted(_init, _calldata);
-            }
-        }
-    }
-
-    /// @dev Initialize the diamond cut.
-    /// @param _init The address of the contract or facet to execute `data`.
-    /// @param _calldata A function call, including function selector and arguments.
-    function initializeDiamondCutCalldata(address _init, bytes calldata _calldata) internal {
-        if (_init == address(0)) return;
-        _enforceHasContractCode(_init);
-        (bool success, bytes memory err) = _init.delegatecall(_calldata);
-        if (!success) {
-            if (err.length > 0) {
-                // bubble up error
-                /// @solidity memory-safe-assembly
-                assembly {
+                assembly ("memory-safe") {
                     let returndata_size := mload(err)
                     revert(add(32, err), returndata_size)
                 }

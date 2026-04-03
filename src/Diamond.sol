@@ -47,7 +47,7 @@ abstract contract Diamond {
         bytes32 s = InitializableLib.initializableSlot();
         InitializableLib.preInitializer(s);
 
-        DiamondLib.diamondCutCalldata(_facetCuts, _init, _calldata);
+        DiamondLib.diamondCut(_facetCuts, _init, _calldata);
 
         InitializableLib.postInitializer(s);
     }
