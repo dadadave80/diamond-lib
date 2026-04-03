@@ -22,7 +22,7 @@ contract DiamondCutFacet is IDiamondCut {
     ///                  _calldata is executed with delegatecall on _init
     function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external payable {
         // Check that the caller is the owner
-        OwnableRolesLib._checkOwner();
+        OwnableRolesLib.checkOwner();
         // Call the diamond cut function from the library
         DiamondLib.diamondCutCalldata(_diamondCut, _init, _calldata);
     }

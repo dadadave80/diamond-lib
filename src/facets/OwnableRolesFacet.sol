@@ -24,47 +24,47 @@ contract OwnableRolesFacet {
 
     /// @dev Allows the owner to transfer the ownership to `newOwner`.
     function transferOwnership(address _newOwner) public onlyOwner {
-        _newOwner._transferOwnership();
+        _newOwner.transferOwnership();
     }
 
     /// @dev Allows the owner to renounce their ownership.
     function renounceOwnership() public onlyOwner {
-        OwnableRolesLib._renounceOwnership();
+        OwnableRolesLib.renounceOwnership();
     }
 
     /// @dev Request a two-step ownership handover to the caller.
     /// The request will automatically expire in 48 hours (172800 seconds) by default.
     function requestOwnershipHandover() public {
-        OwnableRolesLib._requestOwnershipHandover();
+        OwnableRolesLib.requestOwnershipHandover();
     }
 
     /// @dev Cancels the two-step ownership handover to the caller, if any.
     function cancelOwnershipHandover() public {
-        OwnableRolesLib._cancelOwnershipHandover();
+        OwnableRolesLib.cancelOwnershipHandover();
     }
 
     /// @dev Allows the owner to complete the two-step ownership handover to `pendingOwner`.
     /// Reverts if there is no existing ownership handover requested by `pendingOwner`.
     function completeOwnershipHandover(address _pendingOwner) public onlyOwner {
-        _pendingOwner._completeOwnershipHandover();
+        _pendingOwner.completeOwnershipHandover();
     }
 
     /// @dev Allows the owner to grant `user` `roles`.
     /// If the `user` already has a role, then it will be an no-op for the role.
     function grantRoles(address _user, uint256 _roles) public onlyOwner {
-        _user._grantRoles(_roles);
+        _user.grantRoles(_roles);
     }
 
     /// @dev Allows the owner to remove `user` `roles`.
     /// If the `user` does not have a role, then it will be an no-op for the role.
     function revokeRoles(address _user, uint256 _roles) public onlyOwner {
-        _user._removeRoles(_roles);
+        _user.removeRoles(_roles);
     }
 
     /// @dev Allow the caller to remove their own roles.
     /// If the caller does not have a role, then it will be an no-op for the role.
     function renounceRoles(uint256 _roles) public {
-        msg.sender._removeRoles(_roles);
+        msg.sender.removeRoles(_roles);
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -73,41 +73,41 @@ contract OwnableRolesFacet {
 
     /// @dev Returns the owner of the contract.
     function owner() public view returns (address) {
-        return OwnableRolesLib._owner();
+        return OwnableRolesLib.owner();
     }
 
     /// @dev Returns the expiry timestamp for the two-step ownership handover to `pendingOwner`.
     function ownershipHandoverExpiresAt(address _pendingOwner) public view returns (uint256) {
-        return _pendingOwner._ownershipHandoverExpiresAt();
+        return _pendingOwner.ownershipHandoverExpiresAt();
     }
 
     /// @dev Returns the roles of `user`.
     function rolesOf(address _user) public view returns (uint256) {
-        return _user._rolesOf();
+        return _user.rolesOf();
     }
 
     /// @dev Returns whether `user` has any of `roles`.
     function hasAnyRole(address _user, uint256 _roles) public view returns (bool) {
-        return _user._rolesOf() & _roles != 0;
+        return _user.rolesOf() & _roles != 0;
     }
 
     /// @dev Returns whether `user` has all of `roles`.
     function hasAllRoles(address _user, uint256 _roles) public view returns (bool) {
-        return _user._rolesOf() & _roles == _roles;
+        return _user.rolesOf() & _roles == _roles;
     }
 
     /// @dev Convenience function to return a `roles` bitmap from an array of `ordinals`.
     /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
     /// Not recommended to be called on-chain.
     function rolesFromOrdinals(uint8[] memory ordinals) external pure returns (uint256) {
-        return ordinals._rolesFromOrdinals();
+        return ordinals.rolesFromOrdinals();
     }
 
     /// @dev Convenience function to return an array of `ordinals` from the `roles` bitmap.
     /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
     /// Not recommended to be called on-chain.
     function ordinalsFromRoles(uint256 roles) external pure returns (uint8[] memory) {
-        return roles._ordinalsFromRoles();
+        return roles.ordinalsFromRoles();
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -116,27 +116,27 @@ contract OwnableRolesFacet {
 
     /// @dev Marks a function as only callable by the owner.
     modifier onlyOwner() {
-        OwnableRolesLib._checkOwner();
+        OwnableRolesLib.checkOwner();
         _;
     }
 
     /// @dev Marks a function as only callable by an account with `roles`.
     modifier onlyRoles(uint256 _roles) {
-        OwnableRolesLib._checkRoles(_roles);
+        OwnableRolesLib.checkRoles(_roles);
         _;
     }
 
     /// @dev Marks a function as only callable by the owner or by an account
     ///      with `roles`. Checks for ownership first, then lazily checks for roles.
     modifier onlyOwnerOrRoles(uint256 _roles) {
-        OwnableRolesLib._checkOwnerOrRoles(_roles);
+        OwnableRolesLib.checkOwnerOrRoles(_roles);
         _;
     }
 
     /// @dev Marks a function as only callable by an account with `roles` or the owner.
     /// Checks for roles first, then lazily checks for ownership.
     modifier onlyRolesOrOwner(uint256 _roles) {
-        OwnableRolesLib._checkRolesOrOwner(_roles);
+        OwnableRolesLib.checkRolesOrOwner(_roles);
         _;
     }
 }
