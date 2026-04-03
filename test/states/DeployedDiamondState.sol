@@ -33,7 +33,7 @@ abstract contract DeployedDiamondState is GetSelectors {
 
     /// @notice Deploys the Diamond contract and initializes interface references and facet addresses.
     /// @dev This function is intended to be called in a test setup phase (e.g., `setUp()` in Foundry).
-    function setUp() public {
+    function setUp() public virtual {
         deployDiamond = new DeployDiamond();
         diamond = deployDiamond.run();
 
