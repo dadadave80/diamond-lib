@@ -55,26 +55,13 @@ abstract contract Diamond {
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
     fallback() external payable virtual {
-        _delegate(_facet());
-    }
-
-    receive() external payable virtual {}
-
-    /// @notice Retrieves the implementation address for the current function call
-    /// @dev A Facet is one of many implementations in a Diamond Proxy
-    function _facet() internal view virtual returns (address) {
-        return DiamondLib.selectorToFacet(msg.sig);
-    }
-
-    /// @notice Internal function to perform a delegatecall to an implementation
-    /// @param _implementation Address of the implementation to delegate to
-    function _delegate(address _implementation) internal virtual {
+        address implementation = DiamondLib.selectorToFacet(msg.sig);
         assembly {
             // Copy calldata to memory
             calldatacopy(0, 0, calldatasize())
 
             // Delegate call to implementation
-            let result := delegatecall(gas(), _implementation, 0, calldatasize(), 0, 0)
+            let result := delegatecall(gas(), implementation, 0, calldatasize(), 0, 0)
 
             // Copy returned data
             returndatacopy(0, 0, returndatasize())
@@ -89,4 +76,6 @@ abstract contract Diamond {
             }
         }
     }
+
+    receive() external payable virtual {}
 }

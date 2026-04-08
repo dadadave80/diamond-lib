@@ -5,7 +5,7 @@ import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {MockDiamond} from "@diamond-test/mocks/MockDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
-import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
+import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
 import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
@@ -17,7 +17,7 @@ import {Script} from "forge-std/Script.sol";
 /// @notice Deployment script for an EIP-2535 Diamond proxy contract with core facets and ERC165 initialization
 /// @author David Dada
 ///
-/// @dev Uses Foundry's `Script` and a helper contract to deploy and wire up DiamondCutFacet, DiamondLoupeFacet, and OwnableRolesFacet
+/// @dev Uses Foundry's `Script` and a helper contract to deploy and wire up DiamondCutFacet, DiamondLoupeFacet, and OwnableFacet
 contract DeployDiamond is Script, GetSelectors {
     /// @notice Executes the deployment of the Diamond contract with the initial facets and ERC165 interface setup
     /// @dev Broadcasts transactions using Foundry's scripting environment (`vm.startBroadcast()` and `vm.stopBroadcast()`).
@@ -28,7 +28,7 @@ contract DeployDiamond is Script, GetSelectors {
         // Deploy core facet contracts
         DiamondCutFacet diamondCutFacet = new DiamondCutFacet();
         DiamondLoupeFacet diamondLoupeFacet = new DiamondLoupeFacet();
-        OwnableRolesFacet ownableRolesFacet = new OwnableRolesFacet();
+        OwnableFacet ownableFacet = new OwnableFacet();
 
         // Deploy initializer contracts
         address multiInit = address(new MultiInit());
@@ -52,11 +52,11 @@ contract DeployDiamond is Script, GetSelectors {
             functionSelectors: _getSelectors("DiamondLoupeFacet")
         });
 
-        // Add OwnableRolesFacet to the cut list
+        // Add OwnableFacet to the cut list
         cut[2] = FacetCut({
-            facetAddress: address(ownableRolesFacet),
+            facetAddress: address(ownableFacet),
             action: FacetCutAction.Add,
-            functionSelectors: _getSelectors("OwnableRolesFacet")
+            functionSelectors: _getSelectors("OwnableFacet")
         });
 
         // Build MultiInit arrays for granular initialization

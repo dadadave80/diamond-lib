@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @title LibOwnableRoles
-/// @notice Simple single owner and multiroles authorization mixin.
-/// @author Vectorized (https://github.com/vectorized/solady/blob/main/src/auth/OwnableRoles.sol)
-/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
+/// @notice Simple single owner authorization mixin.
+/// @author Solady (https://github.com/vectorized/solady/blob/main/src/auth/Ownable.sol)
 ///
 /// @dev Note:
 /// This implementation does NOT auto-initialize the owner to `msg.sender`.
@@ -13,7 +11,7 @@ pragma solidity ^0.8.20;
 /// While the ownable portion follows
 /// [EIP-173](https://eips.ethereum.org/EIPS/eip-173) for compatibility,
 /// the nomenclature for the 2-step ownership handover may be unique to this codebase.
-library OwnableRolesLib {
+library OwnableLib {
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                       CUSTOM ERRORS                        */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
@@ -46,10 +44,6 @@ library OwnableRolesLib {
     /// @dev The ownership handover to `pendingOwner` has been canceled.
     event OwnershipHandoverCanceled(address indexed pendingOwner);
 
-    /// @dev The `user`'s roles is updated to `roles`.
-    /// Each bit of `roles` represents whether the role is set.
-    event RolesUpdated(address indexed user, uint256 indexed roles);
-
     /// @dev `keccak256(bytes("OwnershipTransferred(address,address)"))`.
     uint256 private constant _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE =
         0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0;
@@ -61,10 +55,6 @@ library OwnableRolesLib {
     /// @dev `keccak256(bytes("OwnershipHandoverCanceled(address)"))`.
     uint256 private constant _OWNERSHIP_HANDOVER_CANCELED_EVENT_SIGNATURE =
         0xfa7b8eab7da67f412cc9575ed43464468f9bfbae89d1675917346ca6d8fe3c92;
-
-    /// @dev `keccak256(bytes("RolesUpdated(address,uint256)"))`.
-    uint256 private constant _ROLES_UPDATED_EVENT_SIGNATURE =
-        0x715ad5ce61fc9595c7b415289d59cf203f23a94fa06f04af7e489a0a76e1fe26;
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                          STORAGE                           */
@@ -85,17 +75,6 @@ library OwnableRolesLib {
     /// ```
     /// It stores the expiry timestamp of the two-step ownership handover.
     uint256 private constant _HANDOVER_SLOT_SEED = 0x389a75e1;
-
-    /// @dev The role slot of `user` is given by:
-    /// ```
-    ///     mstore(0x00, or(shl(96, user), _ROLE_SLOT_SEED))
-    ///     let roleSlot := keccak256(0x00, 0x20)
-    /// ```
-    /// This automatically ignores the upper bits of the `user` in case
-    /// they are not clean, as well as keep the `keccak256` under 32-bytes.
-    ///
-    /// Note: This is equivalent to `uint32(bytes4(keccak256("_OWNER_SLOT_NOT")))`.
-    uint256 private constant _ROLE_SLOT_SEED = 0x8b78c6d8;
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                     INTERNAL FUNCTIONS                     */
@@ -153,162 +132,6 @@ library OwnableRolesLib {
     /// Made internal to conserve bytecode. Wrap it in a public function if needed.
     function ownershipHandoverValidFor() internal pure returns (uint64) {
         return 48 * 3600;
-    }
-
-    /// @dev Overwrite the roles directly without authorization guard.
-    function setRoles(address user, uint256 roles) internal {
-        assembly ("memory-safe") {
-            mstore(0x0c, _ROLE_SLOT_SEED)
-            mstore(0x00, user)
-            // Store the new value.
-            sstore(keccak256(0x0c, 0x20), roles)
-            // Emit the {RolesUpdated} event.
-            log3(0, 0, _ROLES_UPDATED_EVENT_SIGNATURE, shr(96, mload(0x0c)), roles)
-        }
-    }
-
-    /// @dev Updates the roles directly without authorization guard.
-    /// If `on` is true, each set bit of `roles` will be turned on,
-    /// otherwise, each set bit of `roles` will be turned off.
-    function updateRoles(address user, uint256 roles, bool on) internal {
-        assembly ("memory-safe") {
-            mstore(0x0c, _ROLE_SLOT_SEED)
-            mstore(0x00, user)
-            let roleSlot := keccak256(0x0c, 0x20)
-            // Load the current value.
-            let current := sload(roleSlot)
-            // Compute the updated roles if `on` is true.
-            let updated := or(current, roles)
-            // Compute the updated roles if `on` is false.
-            // Use `and` to compute the intersection of `current` and `roles`,
-            // `xor` it with `current` to flip the bits in the intersection.
-            if iszero(on) {
-                updated := xor(current, and(current, roles))
-            }
-            // Then, store the new value.
-            sstore(roleSlot, updated)
-            // Emit the {RolesUpdated} event.
-            log3(0, 0, _ROLES_UPDATED_EVENT_SIGNATURE, shr(96, mload(0x0c)), updated)
-        }
-    }
-
-    /// @dev Grants the roles directly without authorization guard.
-    /// Each bit of `roles` represents the role to turn on.
-    function grantRoles(address user, uint256 roles) internal {
-        updateRoles(user, roles, true);
-    }
-
-    /// @dev Removes the roles directly without authorization guard.
-    /// Each bit of `roles` represents the role to turn off.
-    function removeRoles(address user, uint256 roles) internal {
-        updateRoles(user, roles, false);
-    }
-
-    /// @dev Throws if the sender does not have any of the `roles`.
-    function checkRoles(uint256 roles) internal view {
-        assembly ("memory-safe") {
-            // Compute the role slot.
-            mstore(0x0c, _ROLE_SLOT_SEED)
-            mstore(0x00, caller())
-            // Load the stored value, and if the `and` intersection
-            // of the value and `roles` is zero, revert.
-            if iszero(and(sload(keccak256(0x0c, 0x20)), roles)) {
-                mstore(0x00, 0x82b42900) // `Unauthorized()`.
-                revert(0x1c, 0x04)
-            }
-        }
-    }
-
-    /// @dev Throws if the sender is not the owner,
-    /// and does not have any of the `roles`.
-    /// Checks for ownership first, then lazily checks for roles.
-    function checkOwnerOrRoles(uint256 roles) internal view {
-        assembly ("memory-safe") {
-            // If the caller is not the stored owner.
-            // Note: `_ROLE_SLOT_SEED` is equal to `_OWNER_SLOT_NOT`.
-            if iszero(eq(caller(), sload(not(_ROLE_SLOT_SEED)))) {
-                // Compute the role slot.
-                mstore(0x0c, _ROLE_SLOT_SEED)
-                mstore(0x00, caller())
-                // Load the stored value, and if the `and` intersection
-                // of the value and `roles` is zero, revert.
-                if iszero(and(sload(keccak256(0x0c, 0x20)), roles)) {
-                    mstore(0x00, 0x82b42900) // `Unauthorized()`.
-                    revert(0x1c, 0x04)
-                }
-            }
-        }
-    }
-
-    /// @dev Throws if the sender does not have any of the `roles`,
-    /// and is not the owner.
-    /// Checks for roles first, then lazily checks for ownership.
-    function checkRolesOrOwner(uint256 roles) internal view {
-        assembly ("memory-safe") {
-            // Compute the role slot.
-            mstore(0x0c, _ROLE_SLOT_SEED)
-            mstore(0x00, caller())
-            // Load the stored value, and if the `and` intersection
-            // of the value and `roles` is zero, revert.
-            if iszero(and(sload(keccak256(0x0c, 0x20)), roles)) {
-                // If the caller is not the stored owner.
-                // Note: `_ROLE_SLOT_SEED` is equal to `_OWNER_SLOT_NOT`.
-                if iszero(eq(caller(), sload(not(_ROLE_SLOT_SEED)))) {
-                    mstore(0x00, 0x82b42900) // `Unauthorized()`.
-                    revert(0x1c, 0x04)
-                }
-            }
-        }
-    }
-
-    /// @dev Convenience function to return a `roles` bitmap from an array of `ordinals`.
-    /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
-    /// Not recommended to be called on-chain.
-    /// Made internal to conserve bytecode. Wrap it in a public function if needed.
-    function rolesFromOrdinals(uint8[] memory ordinals) internal pure returns (uint256 roles) {
-        assembly ("memory-safe") {
-            for {
-                let i := shl(5, mload(ordinals))
-            } i {
-                i := sub(i, 0x20)
-            } {
-                // We don't need to mask the values of `ordinals`, as Solidity
-                // cleans dirty upper bits when storing variables into memory.
-                roles := or(shl(mload(add(ordinals, i)), 1), roles)
-            }
-        }
-    }
-
-    /// @dev Convenience function to return an array of `ordinals` from the `roles` bitmap.
-    /// This is meant for frontends like Etherscan, and is therefore not fully optimized.
-    /// Not recommended to be called on-chain.
-    /// Made internal to conserve bytecode. Wrap it in a public function if needed.
-    function ordinalsFromRoles(uint256 roles) internal pure returns (uint8[] memory ordinals) {
-        assembly ("memory-safe") {
-            // Grab the pointer to the free memory.
-            ordinals := mload(0x40)
-            let ptr := add(ordinals, 0x20)
-            let o := 0
-            // The absence of lookup tables, De Bruijn, etc., here is intentional for
-            // smaller bytecode, as this function is not meant to be called on-chain.
-            for {
-                let t := roles
-            } 1 {} {
-                mstore(ptr, o)
-                // `shr` 5 is equivalent to multiplying by 0x20.
-                // Push back into the ordinals array if the bit is set.
-                ptr := add(ptr, shl(5, and(t, 1)))
-                o := add(o, 1)
-                t := shr(o, roles)
-                if iszero(t) {
-                    break
-                }
-            }
-            // Store the length of `ordinals`.
-            mstore(ordinals, shr(5, sub(ptr, add(ordinals, 0x20))))
-            // Allocate the memory.
-            mstore(0x40, ptr)
-        }
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -398,46 +221,5 @@ library OwnableRolesLib {
             // Load the handover slot.
             result := sload(keccak256(0x0c, 0x20))
         }
-    }
-
-    /// @dev Returns the roles of `user`.
-    function rolesOf(address user) internal view returns (uint256 roles) {
-        assembly ("memory-safe") {
-            // Compute the role slot.
-            mstore(0x0c, _ROLE_SLOT_SEED)
-            mstore(0x00, user)
-            // Load the stored value.
-            roles := sload(keccak256(0x0c, 0x20))
-        }
-    }
-
-    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
-    /*                         MODIFIERS                          */
-    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
-
-    /// @dev Marks a function as only callable by the owner.
-    modifier onlyOwner() {
-        checkOwner();
-        _;
-    }
-
-    /// @dev Marks a function as only callable by an account with `roles`.
-    modifier onlyRoles(uint256 roles) {
-        checkRoles(roles);
-        _;
-    }
-
-    /// @dev Marks a function as only callable by the owner or by an account
-    /// with `roles`. Checks for ownership first, then lazily checks for roles.
-    modifier onlyOwnerOrRoles(uint256 roles) {
-        checkOwnerOrRoles(roles);
-        _;
-    }
-
-    /// @dev Marks a function as only callable by an account with `roles`
-    /// or the owner. Checks for roles first, then lazily checks for ownership.
-    modifier onlyRolesOrOwner(uint256 roles) {
-        checkRolesOrOwner(roles);
-        _;
     }
 }
