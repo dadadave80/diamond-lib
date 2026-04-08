@@ -21,7 +21,7 @@ contract DiamondTester is DeployedDiamondState {
 
     /// @notice The crown holder is established at deployment
     function testRough_OwnerIsSet() public view {
-        assertEq(ownableRoles.owner(), address(this));
+        assertEq(ownable.owner(), address(this));
     }
 
     /// @notice Exactly 3 standard facets are cut into the rough

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {OwnableRolesLib} from "@diamond/libraries/OwnableRolesLib.sol";
+import {OwnableLib} from "@diamond/libraries/OwnableLib.sol";
 
 /// @title OwnableInit
 /// @notice Provides an initializer to set the contract owner
@@ -13,6 +13,6 @@ contract OwnableInit {
     /// @dev This function is called during the diamond cut process to set up the owner.
     /// @param _owner The address to set as the contract owner.
     function initOwner(address _owner) public {
-        OwnableRolesLib.initializeOwner(_owner);
+        OwnableLib.initializeOwner(_owner);
     }
 }

@@ -7,7 +7,6 @@ import {MockFacetB} from "@diamond-test/mocks/MockFacetB.sol";
 import {MockRevertInit} from "@diamond-test/mocks/MockRevertInit.sol";
 import {DeployedDiamondState} from "@diamond-test/states/DeployedDiamondState.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
-import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
 import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {
@@ -34,7 +33,7 @@ import {
     NoSelectorsProvidedForFacetCut,
     RemoveFacetAddressMustBeZeroAddress
 } from "@diamond/libraries/DiamondLib.sol";
-import {OwnableRolesLib} from "@diamond/libraries/OwnableRolesLib.sol";
+import {OwnableLib} from "@diamond/libraries/OwnableLib.sol";
 
 /// @title DiamondCutTester
 /// @notice Extensive test coverage for ERC-2535 diamond cut operations
@@ -397,7 +396,7 @@ contract DiamondCutTester is DeployedDiamondState {
         cuts[0] = FacetCut(address(mockFacetA), FacetCutAction.Add, _mockFacetASelectors());
 
         vm.prank(nonOwner);
-        vm.expectRevert(OwnableRolesLib.Unauthorized.selector);
+        vm.expectRevert(OwnableLib.Unauthorized.selector);
         diamondCut.diamondCut(cuts, address(0), "");
     }
 

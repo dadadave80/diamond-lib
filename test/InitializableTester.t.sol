@@ -5,7 +5,7 @@ import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {ReinitializableDiamond} from "@diamond-test/mocks/ReinitializableDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
-import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
+import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
 import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
@@ -19,7 +19,7 @@ contract InitializableTester is GetSelectors {
     ReinitializableDiamond diamond;
     DiamondCutFacet diamondCutFacet;
     DiamondLoupeFacet diamondLoupeFacet;
-    OwnableRolesFacet ownableRolesFacet;
+    OwnableFacet ownableFacet;
     MultiInit multiInit;
     OwnableInit ownableInit;
     ERC165Init erc165Init;
@@ -30,7 +30,7 @@ contract InitializableTester is GetSelectors {
         // Deploy facets
         diamondCutFacet = new DiamondCutFacet();
         diamondLoupeFacet = new DiamondLoupeFacet();
-        ownableRolesFacet = new OwnableRolesFacet();
+        ownableFacet = new OwnableFacet();
 
         // Deploy initializers
         multiInit = new MultiInit();
@@ -54,9 +54,9 @@ contract InitializableTester is GetSelectors {
         );
         cuts.push(
             FacetCut({
-                facetAddress: address(ownableRolesFacet),
+                facetAddress: address(ownableFacet),
                 action: FacetCutAction.Add,
-                functionSelectors: _getSelectors("OwnableRolesFacet")
+                functionSelectors: _getSelectors("OwnableFacet")
             })
         );
 
@@ -206,7 +206,7 @@ contract InitializableTester is GetSelectors {
         diamond.initialize(facetCuts, init, initCalldata);
 
         // Verify owner was set
-        OwnableRolesFacet ownable = OwnableRolesFacet(address(diamond));
+        OwnableFacet ownable = OwnableFacet(address(diamond));
         assertEq(ownable.owner(), address(this));
 
         // Verify ERC165 interfaces were registered

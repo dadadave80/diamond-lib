@@ -7,6 +7,10 @@ error AddressAndCalldataLengthMismatch();
 error NoBytecodeAtAddress(address initAddress);
 error InitializeReverted(address initAddress, bytes initCalldata);
 
+/// @title MultiInit
+/// @author David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
+/// @notice Provides a utility function to perform multiple delegatecall initializations in a single transaction,
+///         with robust error handling and validation.
 contract MultiInit {
     function multiInit(address[] calldata _initAddresses, bytes[] calldata _initData) public {
         uint256 initAddressesLength = _initAddresses.length;
@@ -23,8 +27,8 @@ contract MultiInit {
                 if (err.length > 0) {
                     // bubble up error
                     assembly ("memory-safe") {
-                        let returndata_size := mload(err)
-                        revert(add(32, err), returndata_size)
+                        let returndataSize := mload(err)
+                        revert(add(32, err), returndataSize)
                     }
                 } else {
                     revert InitializeReverted(initAddress, _initData[i]);
