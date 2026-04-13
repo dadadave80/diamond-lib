@@ -47,6 +47,9 @@ error RemoveFacetAddressMustBeZeroAddress(address facetAddress);
 /// @param selector The selector that could not be found
 error CannotRemoveFunctionThatDoesNotExist(bytes4 selector);
 
+/// @notice Thrown when attempting to add a function defined directly in the diamond contract
+error CannotAddImmutableFunction();
+
 /// @notice Thrown when attempting to remove an immutable function
 /// @param selector The selector of the immutable function
 error CannotRemoveImmutableFunction(bytes4 selector);
@@ -251,6 +254,7 @@ library DiamondLib {
     /// @param _ds Diamond storage.
     /// @param _facetAddress The address of the facet to add.
     function addFacet(DiamondStorage storage _ds, address _facetAddress) internal {
+        if (_facetAddress == address(this)) revert CannotAddImmutableFunction();
         _enforceHasContractCode(_facetAddress);
         _ds.facetToSelectorsAndPosition[_facetAddress].facetAddressPosition = _ds.facetAddresses.length;
         _ds.facetAddresses.push(_facetAddress);
