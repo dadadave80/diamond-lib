@@ -282,7 +282,7 @@ library DiamondLib {
             revert CannotRemoveImmutableFunction(_selector);
         }
         // replace selector with last selector, then delete last selector
-        uint96 selectorPosition = selectorToPosition(_ds, _selector);
+        uint96 selectorPosition = _ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;
         uint256 lastSelectorPosition = facetToSelectors(_ds, _facetAddress).length - 1;
         // if not the same then replace _selector with lastSelector
         if (selectorPosition != lastSelectorPosition) {
@@ -318,24 +318,8 @@ library DiamondLib {
         if (facet_ == address(0)) revert FunctionDoesNotExist(msg.sig);
     }
 
-    function selectorToPosition(bytes4 _selector) internal view returns (uint96) {
-        return selectorToPosition(diamondStorage(), _selector);
-    }
-
-    function facetToSelectors(address _facetAddress) internal view returns (bytes4[] memory) {
-        return facetToSelectors(diamondStorage(), _facetAddress);
-    }
-
-    function facetToPosition(address _facetAddress) internal view returns (uint256) {
-        return facetToPosition(diamondStorage(), _facetAddress);
-    }
-
     function selectorToFacet(DiamondStorage storage _ds, bytes4 _selector) internal view returns (address) {
         return _ds.selectorToFacetAndPosition[_selector].facetAddress;
-    }
-
-    function selectorToPosition(DiamondStorage storage _ds, bytes4 _selector) internal view returns (uint96) {
-        return _ds.selectorToFacetAndPosition[_selector].functionSelectorPosition;
     }
 
     function facetToSelectors(DiamondStorage storage _ds, address _facetAddress)
@@ -376,7 +360,7 @@ library DiamondLib {
 
     /// @dev Enforce that the contract has bytecode.
     /// @param _contract The address of the contract to check.
-    function _enforceHasContractCode(address _contract) internal view {
+    function _enforceHasContractCode(address _contract) private view {
         if (_contract.code.length == 0) revert NoBytecodeAtAddress(_contract);
     }
 }
