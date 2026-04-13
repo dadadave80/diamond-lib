@@ -131,8 +131,6 @@ struct DiamondStorage {
     mapping(address => FacetFunctionSelectorsAndPosition) facetToSelectorsAndPosition;
     /// @notice Array of all facet addresses registered in the diamond
     address[] facetAddresses;
-    /// @notice Tracks which interface IDs (ERC-165) are supported by the diamond
-    mapping(bytes4 => bool) supportedInterfaces;
 }
 
 /// @title DiamondLib
