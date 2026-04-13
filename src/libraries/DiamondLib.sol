@@ -115,12 +115,12 @@ struct Facet {
 //                              DIAMOND STORAGE
 //////////////////////////////////////////////////////////////////////////*//
 
-// keccak256(abi.encode(uint256(keccak256("diamond.standard.diamond.storage")) - 1)) & ~bytes32(uint256(0xff));
-bytes32 constant DIAMOND_STORAGE_LOCATION = 0x44fefae66705534388ac21ba5f0775616856a675b8eaea9bb0b2507f06238700;
+// keccak256(abi.encode(uint256(keccak256("diamond.lib.storage")) - 1)) & ~bytes32(uint256(0xff));
+bytes32 constant DIAMOND_STORAGE_LOCATION = 0x6d5a93fec60e12d72b781fe97b2b5406e385b9eaa23d3ec2fbfa067f9d0dc000;
 
 /// @notice Storage structure for managing facets and interface support in a Diamond (EIP-2535) proxy
 /// @dev Tracks function selector mappings, facet lists, and ERC-165 interface support
-/// @custom:storage-location erc7201:diamond.standard.diamond.storage
+/// @custom:storage-location erc7201:diamond.lib.storage
 struct DiamondStorage {
     /// @notice Maps each function selector to the facet address and selector’s position in that facet
     mapping(bytes4 => FacetAddressAndPosition) selectorToFacetAndPosition;
