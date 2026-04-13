@@ -7,7 +7,6 @@ import {MockFacetB} from "@diamond-test/mocks/MockFacetB.sol";
 import {MockRevertInit} from "@diamond-test/mocks/MockRevertInit.sol";
 import {DeployedDiamondState} from "@diamond-test/states/DeployedDiamondState.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
-import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {
     AddressAndCalldataLengthMismatch,
@@ -69,7 +68,7 @@ contract DiamondCutTester is DeployedDiamondState {
         _addMockFacetA();
 
         address[] memory addresses = diamondLoupe.facetAddresses();
-        assertEq(addresses.length, 4); // 3 core + MockFacetA
+        assertEq(addresses.length, 5); // 4 core + MockFacetA
 
         bytes4[] memory selectors = diamondLoupe.facetFunctionSelectors(address(mockFacetA));
         assertEq(selectors.length, 3);
@@ -86,7 +85,7 @@ contract DiamondCutTester is DeployedDiamondState {
 
         diamondCut.diamondCut(cuts, address(0), "");
 
-        assertEq(diamondLoupe.facetAddresses().length, 5); // 3 core + A + B
+        assertEq(diamondLoupe.facetAddresses().length, 6); // 4 core + A + B
     }
 
     /// @notice Diamond cut emits the DiamondCut event — the fire of the forge
@@ -182,13 +181,13 @@ contract DiamondCutTester is DeployedDiamondState {
     /// @notice Removing all selectors removes the facet entirely
     function testCleaving_RemoveAllSelectorsRemovesFacet() public {
         _addMockFacetA();
-        assertEq(diamondLoupe.facetAddresses().length, 4);
+        assertEq(diamondLoupe.facetAddresses().length, 5);
 
         FacetCut[] memory cuts = new FacetCut[](1);
         cuts[0] = FacetCut(address(0), FacetCutAction.Remove, _mockFacetASelectors());
         diamondCut.diamondCut(cuts, address(0), "");
 
-        assertEq(diamondLoupe.facetAddresses().length, 3);
+        assertEq(diamondLoupe.facetAddresses().length, 4);
         assertEq(diamondLoupe.facetFunctionSelectors(address(mockFacetA)).length, 0);
     }
 
@@ -203,7 +202,7 @@ contract DiamondCutTester is DeployedDiamondState {
         cuts[0] = FacetCut(address(0), FacetCutAction.Remove, selectors);
         diamondCut.diamondCut(cuts, address(0), "");
 
-        assertEq(diamondLoupe.facetAddresses().length, 4); // Facet still present
+        assertEq(diamondLoupe.facetAddresses().length, 5); // Facet still present
         assertEq(diamondLoupe.facetFunctionSelectors(address(mockFacetA)).length, 1);
         assertEq(MockFacetA(address(diamond)).funcA3(), 3);
     }
@@ -453,14 +452,14 @@ contract DiamondCutTester is DeployedDiamondState {
     /// @notice MultiInit stops processing on address(0) — the sentinel stone
     function testSetting_MultiInitStopsOnZeroAddress() public {
         MultiInit multiInit = new MultiInit();
-        ERC165Init erc165Init = new ERC165Init();
+        OwnableInit ownableInit = new OwnableInit();
 
         address[] memory addrs = new address[](2);
         bytes[] memory data = new bytes[](2);
         addrs[0] = address(0); // sentinel — stops here
-        addrs[1] = address(erc165Init); // should not execute
+        addrs[1] = address(ownableInit); // should not execute
         data[0] = "";
-        data[1] = abi.encodeWithSignature("initERC165()");
+        data[1] = abi.encodeWithSignature("initOwner(address)", address(this));
 
         bytes memory callData = abi.encodeWithSignature("multiInit(address[],bytes[])", addrs, data);
 

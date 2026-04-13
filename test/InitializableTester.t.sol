@@ -5,9 +5,8 @@ import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {ReinitializableDiamond} from "@diamond-test/mocks/ReinitializableDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
+import {ERC165Facet} from "@diamond/facets/ERC165Facet.sol";
 import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
-import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
-import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
 import {ContextLib} from "@diamond/libraries/ContextLib.sol";
 import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
@@ -19,10 +18,9 @@ contract InitializableTester is GetSelectors {
     ReinitializableDiamond diamond;
     DiamondCutFacet diamondCutFacet;
     DiamondLoupeFacet diamondLoupeFacet;
+    ERC165Facet erc165Facet;
     OwnableFacet ownableFacet;
-    MultiInit multiInit;
     OwnableInit ownableInit;
-    ERC165Init erc165Init;
 
     FacetCut[] cuts;
 
@@ -30,12 +28,11 @@ contract InitializableTester is GetSelectors {
         // Deploy facets
         diamondCutFacet = new DiamondCutFacet();
         diamondLoupeFacet = new DiamondLoupeFacet();
+        erc165Facet = new ERC165Facet();
         ownableFacet = new OwnableFacet();
 
-        // Deploy initializers
-        multiInit = new MultiInit();
+        // Deploy initializer
         ownableInit = new OwnableInit();
-        erc165Init = new ERC165Init();
 
         // Build facet cuts
         cuts.push(
@@ -50,6 +47,13 @@ contract InitializableTester is GetSelectors {
                 facetAddress: address(diamondLoupeFacet),
                 action: FacetCutAction.Add,
                 functionSelectors: _getSelectors("DiamondLoupeFacet")
+            })
+        );
+        cuts.push(
+            FacetCut({
+                facetAddress: address(erc165Facet),
+                action: FacetCutAction.Add,
+                functionSelectors: _getSelectors("ERC165Facet")
             })
         );
         cuts.push(
@@ -200,7 +204,7 @@ contract InitializableTester is GetSelectors {
     /*                     MULTI-INIT TESTS                         */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    /// @notice MultiInit correctly initializes owner and ERC165 through initialize
+    /// @notice Initialize correctly sets owner and ERC165 interfaces
     function testMultiInitSetsOwnerAndInterfaces() public {
         (FacetCut[] memory facetCuts, address init, bytes memory initCalldata) = _buildInitArgs(address(this));
         diamond.initialize(facetCuts, init, initCalldata);
@@ -209,12 +213,12 @@ contract InitializableTester is GetSelectors {
         OwnableFacet ownable = OwnableFacet(address(diamond));
         assertEq(ownable.owner(), address(this));
 
-        // Verify ERC165 interfaces were registered
-        DiamondLoupeFacet loupe = DiamondLoupeFacet(address(diamond));
-        assertTrue(loupe.supportsInterface(0x01ffc9a7)); // ERC165
-        assertTrue(loupe.supportsInterface(0x7f5828d0)); // ERC173
-        assertTrue(loupe.supportsInterface(0x1f931c1c)); // IDiamondCut
-        assertTrue(loupe.supportsInterface(0x48e2b093)); // IDiamondLoupe
+        // Verify ERC165 interfaces are supported
+        ERC165Facet erc165 = ERC165Facet(address(diamond));
+        assertTrue(erc165.supportsInterface(0x01ffc9a7)); // ERC165
+        assertTrue(erc165.supportsInterface(0x7f5828d0)); // ERC173
+        assertTrue(erc165.supportsInterface(0x1f931c1c)); // IDiamondCut
+        assertTrue(erc165.supportsInterface(0x48e2b093)); // IDiamondLoupe
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -231,16 +235,7 @@ contract InitializableTester is GetSelectors {
             facetCuts_[i] = cuts[i];
         }
 
-        address[] memory initAddresses = new address[](2);
-        bytes[] memory initData = new bytes[](2);
-
-        initAddresses[0] = address(ownableInit);
-        initData[0] = abi.encodeWithSignature("initOwner(address)", _owner);
-
-        initAddresses[1] = address(erc165Init);
-        initData[1] = abi.encodeWithSignature("initERC165()");
-
-        init_ = address(multiInit);
-        initCalldata_ = abi.encodeWithSignature("multiInit(address[],bytes[])", initAddresses, initData);
+        init_ = address(ownableInit);
+        initCalldata_ = abi.encodeWithSignature("initOwner(address)", _owner);
     }
 }

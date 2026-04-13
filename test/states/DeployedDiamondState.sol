@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {DeployDiamond} from "@diamond-script/DeployDiamond.s.sol";
 import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
+import {ERC165Facet} from "@diamond/facets/ERC165Facet.sol";
 import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
 
@@ -20,6 +21,9 @@ abstract contract DeployedDiamondState is GetSelectors {
     /// @notice Interface for the DiamondLoupe functionality of the deployed diamond.
     DiamondLoupeFacet public diamondLoupe;
 
+    /// @notice Interface for the ERC165 functionality of the deployed diamond.
+    ERC165Facet public erc165;
+
     /// @notice Interface for the OwnableRoles functionality of the deployed diamond.
     OwnableFacet public ownable;
 
@@ -27,7 +31,7 @@ abstract contract DeployedDiamondState is GetSelectors {
     address[] public facetAddresses;
 
     /// @notice List of facet contract names used in deployment.
-    string[3] public facetNames = ["DiamondCutFacet", "DiamondLoupeFacet", "OwnableFacet"];
+    string[4] public facetNames = ["DiamondCutFacet", "DiamondLoupeFacet", "ERC165Facet", "OwnableFacet"];
 
     address public diamondOwner = address(this);
 
@@ -39,6 +43,7 @@ abstract contract DeployedDiamondState is GetSelectors {
 
         diamondCut = IDiamondCut(diamond);
         diamondLoupe = DiamondLoupeFacet(diamond);
+        erc165 = ERC165Facet(diamond);
         ownable = OwnableFacet(diamond);
 
         facetAddresses = diamondLoupe.facetAddresses();

@@ -24,9 +24,9 @@ contract DiamondTester is DeployedDiamondState {
         assertEq(ownable.owner(), address(this));
     }
 
-    /// @notice Exactly 3 standard facets are cut into the rough
+    /// @notice Exactly 4 standard facets are cut into the rough
     function testRough_StandardFacetsDeployed() public view {
-        assertEq(facetAddresses.length, 3);
+        assertEq(facetAddresses.length, 4);
         for (uint256 i; i < facetAddresses.length; ++i) {
             assertNotEq(address(facetAddresses[i]), address(0));
         }
@@ -95,27 +95,27 @@ contract DiamondTester is DeployedDiamondState {
 
     /// @notice Certified: supports ERC-165 introspection
     function testCertified_SupportsERC165() public view {
-        assertTrue(diamondLoupe.supportsInterface(0x01ffc9a7));
+        assertTrue(erc165.supportsInterface(0x01ffc9a7));
     }
 
     /// @notice Certified: supports ERC-173 ownership
     function testCertified_SupportsERC173() public view {
-        assertTrue(diamondLoupe.supportsInterface(0x7f5828d0));
+        assertTrue(erc165.supportsInterface(0x7f5828d0));
     }
 
     /// @notice Certified: supports IDiamondCut
     function testCertified_SupportsIDiamondCut() public view {
-        assertTrue(diamondLoupe.supportsInterface(type(IDiamondCut).interfaceId));
+        assertTrue(erc165.supportsInterface(type(IDiamondCut).interfaceId));
     }
 
     /// @notice Certified: supports IDiamondLoupe
     function testCertified_SupportsIDiamondLoupe() public view {
-        assertTrue(diamondLoupe.supportsInterface(type(IDiamondLoupe).interfaceId));
+        assertTrue(erc165.supportsInterface(type(IDiamondLoupe).interfaceId));
     }
 
     /// @notice Unregistered interface returns false
     function testCertified_UnsupportedInterfaceReturnsFalse() public view {
-        assertFalse(diamondLoupe.supportsInterface(0xffffffff));
-        assertFalse(diamondLoupe.supportsInterface(bytes4(0xdeadbeef)));
+        assertFalse(erc165.supportsInterface(0xffffffff));
+        assertFalse(erc165.supportsInterface(bytes4(0xdeadbeef)));
     }
 }
