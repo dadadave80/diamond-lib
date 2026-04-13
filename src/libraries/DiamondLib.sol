@@ -134,8 +134,8 @@ struct DiamondStorage {
 
 /// @title DiamondLib
 /// @notice Internal library providing core functionality for ERC-2535 Diamond proxy management.
-/// @author Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/libraries/LibDiamond.sol)
-/// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
+/// @author David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
+/// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/libraries/LibDiamond.sol)
 ///
 /// @dev Defines the diamond storage layout and implements the `_diamondCut` operation and storage accessors
 library DiamondLib {
