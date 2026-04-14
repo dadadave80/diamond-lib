@@ -2,8 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
-import {Facet} from "@diamond/libraries/DiamondLib.sol";
-import {DiamondLib, DiamondStorage} from "@diamond/libraries/DiamondLib.sol";
+import {DiamondLib, DiamondStorage, Facet} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title DiamondLoupeFacet
 /// @notice Provides read-only functions to inspect the state of a Diamond proxy, including facets, function selectors, and supported interfaces
