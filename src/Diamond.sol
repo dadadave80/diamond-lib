@@ -35,7 +35,7 @@ import {InitializableLib} from "@diamond/libraries/InitializableLib.sol";
 /// @notice Implements ERC-2535 Diamond proxy pattern, allowing dynamic addition, replacement, and removal of facets
 /// @author David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 /// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/Diamond.sol)
-abstract contract Diamond {
+contract Diamond {
     /// @notice Initializes the Diamond proxy with the provided facets and initialization parameters
     /// @param _init Address of the initialization contract
     /// @param _calldata Calldata to be passed to the initialization contract
