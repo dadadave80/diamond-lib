@@ -4,7 +4,8 @@ pragma solidity ^0.8.20;
 import {DeployDiamond} from "@diamond-script/DeployDiamond.s.sol";
 import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
-import {OwnableRolesFacet} from "@diamond/facets/OwnableRolesFacet.sol";
+import {ERC165Facet} from "@diamond/facets/ERC165Facet.sol";
+import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
 
 /// @notice Provides shared state for tests involving a freshly deployed Diamond contract.
@@ -20,26 +21,30 @@ abstract contract DeployedDiamondState is GetSelectors {
     /// @notice Interface for the DiamondLoupe functionality of the deployed diamond.
     DiamondLoupeFacet public diamondLoupe;
 
+    /// @notice Interface for the ERC165 functionality of the deployed diamond.
+    ERC165Facet public erc165;
+
     /// @notice Interface for the OwnableRoles functionality of the deployed diamond.
-    OwnableRolesFacet public ownableRoles;
+    OwnableFacet public ownable;
 
     /// @notice Stores the facet addresses returned from the diamond loupe.
     address[] public facetAddresses;
 
     /// @notice List of facet contract names used in deployment.
-    string[3] public facetNames = ["DiamondCutFacet", "DiamondLoupeFacet", "OwnableRolesFacet"];
+    string[4] public facetNames = ["DiamondCutFacet", "DiamondLoupeFacet", "ERC165Facet", "OwnableFacet"];
 
     address public diamondOwner = address(this);
 
     /// @notice Deploys the Diamond contract and initializes interface references and facet addresses.
     /// @dev This function is intended to be called in a test setup phase (e.g., `setUp()` in Foundry).
-    function setUp() public {
+    function setUp() public virtual {
         deployDiamond = new DeployDiamond();
         diamond = deployDiamond.run();
 
         diamondCut = IDiamondCut(diamond);
         diamondLoupe = DiamondLoupeFacet(diamond);
-        ownableRoles = OwnableRolesFacet(diamond);
+        erc165 = ERC165Facet(diamond);
+        ownable = OwnableFacet(diamond);
 
         facetAddresses = diamondLoupe.facetAddresses();
     }

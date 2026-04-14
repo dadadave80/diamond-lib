@@ -6,12 +6,17 @@ remappings = [
     '@diamond/=src/',
     '@diamond-script/=script/',
     '@diamond-test/=test/',
-    '@diamond-storage/=src/libraries/storage/',
-    '@diamond-logs/=src/libraries/logs/',
-    '@diamond-errors/=src/libraries/errors/'
 ]
-optimizer_runs = 999_999
+optimizer_runs = 1_000_000
 via_ir = false
+ffi = true
+
+[profile.ci]
+optimizer_runs = 1_000_000
+via_ir = false
+
+[profile.ci.fuzz]
+runs = 1024
 
 [fmt]
 sort_imports = true

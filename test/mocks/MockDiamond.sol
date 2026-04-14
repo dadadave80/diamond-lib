@@ -3,13 +3,4 @@ pragma solidity ^0.8.20;
 
 import {Diamond, FacetCut} from "@diamond/Diamond.sol";
 
-contract MockDiamond is Diamond {
-    constructor(FacetCut[] memory _facetCuts, address _init, bytes memory _calldata)
-        payable
-        Diamond(_facetCuts, _init, _calldata)
-    {}
-
-    function _beforeDelegate() internal override {
-        // Add custom logic before delegatecall here
-    }
-}
+contract MockDiamond is Diamond {}

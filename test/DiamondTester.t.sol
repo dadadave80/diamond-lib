@@ -1,38 +1,43 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Facet} from "@diamond-storage/DiamondStorage.sol";
 import {Utils} from "@diamond-test/helpers/Utils.sol";
 import {DeployedDiamondState} from "@diamond-test/states/DeployedDiamondState.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
+import {Facet} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title DiamondTester
-/// @notice Contains test cases to validate the deployment and structure of the Diamond contract.
-/// @dev Inherits setup and state from DeployedDiamondState to interact with the deployed diamond.
+/// @notice Validates the structure and integrity of a freshly deployed Diamond
 contract DiamondTester is DeployedDiamondState {
-    /// @notice Verifies that the diamond contract is successfully deployed.
-    function testDiamondDeployed() public view {
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*              ROUGH — Post-Deployment Verification            */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @notice The rough stone has been set — diamond is deployed
+    function testRough_DiamondDeployed() public view {
         assertNotEq(address(diamond), address(0));
     }
 
-    /// @notice Verifies the diamond owner is set correctly.
-    function testDiamondOwner() public view {
-        assertEq(ownableRoles.owner(), address(this));
+    /// @notice The crown holder is established at deployment
+    function testRough_OwnerIsSet() public view {
+        assertEq(ownable.owner(), address(this));
     }
 
-    /// @notice Checks that the standard facets are deployed and have valid addresses.
-    /// @dev Expects exactly 3 standard facets: DiamondCut, DiamondLoupe, and OwnableRoles.
-    function testStandardFacetsDeployed() public view {
-        assertEq(facetAddresses.length, 3);
+    /// @notice Exactly 4 standard facets are cut into the rough
+    function testRough_StandardFacetsDeployed() public view {
+        assertEq(facetAddresses.length, 4);
         for (uint256 i; i < facetAddresses.length; ++i) {
             assertNotEq(address(facetAddresses[i]), address(0));
         }
     }
 
-    /// @notice Ensures all function selectors are registered correctly for each facet.
-    /// @dev Compares generated selectors with those registered in the diamond via facetAddress().
-    function testSelectorsAreComplete() public view {
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*              LOUPE — Inspecting the Cut                      */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @notice Every expected selector is registered under its facet
+    function testLoupe_SelectorsAreComplete() public {
         for (uint256 i; i < facetAddresses.length; ++i) {
             bytes4[] memory fromGenSelectors = _getSelectors(facetNames[i]);
             for (uint256 j; j < fromGenSelectors.length; ++j) {
@@ -41,8 +46,8 @@ contract DiamondTester is DeployedDiamondState {
         }
     }
 
-    /// @notice Asserts that all function selectors across all facets are unique.
-    function testSelectorsAreUnique() public view {
+    /// @notice No two facets share a selector — every surface is unique
+    function testLoupe_SelectorsAreUnique() public view {
         bytes4[] memory allSelectors = Utils.getAllSelectors(address(diamond));
         for (uint256 i; i < allSelectors.length; ++i) {
             for (uint256 j = i + 1; j < allSelectors.length; ++j) {
@@ -51,8 +56,8 @@ contract DiamondTester is DeployedDiamondState {
         }
     }
 
-    /// @notice Ensures each selector maps back to the correct facet.
-    function testSelectorToFacetMappingIsCorrect() public view {
+    /// @notice Forward mapping: selector → facet is consistent
+    function testLoupe_SelectorToFacetMapping() public view {
         Facet[] memory facetsList = diamondLoupe.facets();
         for (uint256 i; i < facetsList.length; ++i) {
             for (uint256 j; j < facetsList[i].functionSelectors.length; ++j) {
@@ -63,8 +68,8 @@ contract DiamondTester is DeployedDiamondState {
         }
     }
 
-    /// @notice Ensures facet addresses return the correct function selectors.
-    function testFacetAddressToSelectorsMappingIsCorrect() public view {
+    /// @notice Reverse mapping: facet → selectors is consistent
+    function testLoupe_FacetToSelectorsMapping() public view {
         for (uint256 i; i < facetAddresses.length; ++i) {
             bytes4[] memory selectors = diamondLoupe.facetFunctionSelectors(facetAddresses[i]);
             for (uint256 j; j < selectors.length; ++j) {
@@ -73,23 +78,44 @@ contract DiamondTester is DeployedDiamondState {
         }
     }
 
-    /// @notice Confirms ERC165 interface support.
-    function testSupportsERC165() public view {
-        assertTrue(diamondLoupe.supportsInterface(0x01ffc9a7)); // ERC165 interface ID
+    /// @notice Unregistered facet returns empty selectors
+    function testLoupe_UnknownFacetReturnsEmpty() public view {
+        bytes4[] memory selectors = diamondLoupe.facetFunctionSelectors(address(0xDEAD));
+        assertEq(selectors.length, 0);
     }
 
-    /// @notice Confirms ERC173 interface support.
-    function testSupportsERC173() public view {
-        assertTrue(diamondLoupe.supportsInterface(0x7f5828d0)); // ERC173 interface ID
+    /// @notice Unregistered selector returns zero address
+    function testLoupe_UnknownSelectorReturnsZero() public view {
+        assertEq(diamondLoupe.facetAddress(bytes4(0xdeadbeef)), address(0));
     }
 
-    /// @notice Confirms IDiamondCut interface support.
-    function testSupportsIDiamondCut() public view {
-        assertTrue(diamondLoupe.supportsInterface(type(IDiamondCut).interfaceId)); // IDiamondCut interface ID
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*              CERTIFIED — ERC-165 Interface Compliance         */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @notice Certified: supports ERC-165 introspection
+    function testCertified_SupportsERC165() public view {
+        assertTrue(erc165.supportsInterface(0x01ffc9a7));
     }
 
-    /// @notice Confirms IDiamondLoupe interface support.
-    function testSupportsIDiamondLoupe() public view {
-        assertTrue(diamondLoupe.supportsInterface(type(IDiamondLoupe).interfaceId)); // IDiamondLoupe interface ID
+    /// @notice Certified: supports ERC-173 ownership
+    function testCertified_SupportsERC173() public view {
+        assertTrue(erc165.supportsInterface(0x7f5828d0));
+    }
+
+    /// @notice Certified: supports IDiamondCut
+    function testCertified_SupportsIDiamondCut() public view {
+        assertTrue(erc165.supportsInterface(type(IDiamondCut).interfaceId));
+    }
+
+    /// @notice Certified: supports IDiamondLoupe
+    function testCertified_SupportsIDiamondLoupe() public view {
+        assertTrue(erc165.supportsInterface(type(IDiamondLoupe).interfaceId));
+    }
+
+    /// @notice Unregistered interface returns false
+    function testCertified_UnsupportedInterfaceReturnsFalse() public view {
+        assertFalse(erc165.supportsInterface(0xffffffff));
+        assertFalse(erc165.supportsInterface(bytes4(0xdeadbeef)));
     }
 }

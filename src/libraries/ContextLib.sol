@@ -12,16 +12,16 @@ pragma solidity ^0.8.20;
  *
  * This contract is only required for intermediate, library-like contracts.
  */
-library LibContext {
-    function _msgSender() internal view returns (address) {
+library ContextLib {
+    function msgSender() internal view returns (address) {
         return msg.sender;
     }
 
-    function _msgData() internal pure returns (bytes calldata) {
+    function msgData() internal pure returns (bytes calldata) {
         return msg.data;
     }
 
-    function _contextSuffixLength() internal pure returns (uint256) {
+    function contextSuffixLength() internal pure returns (uint256) {
         return 0;
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {FacetCut} from "@diamond-storage/DiamondStorage.sol";
+import {FacetCut} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title IDiamondCut
 /// @notice Interface for diamond cut (facet add/replace/remove) functionality
