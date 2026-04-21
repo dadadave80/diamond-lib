@@ -7,6 +7,8 @@ import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {ERC165Facet} from "@diamond/facets/ERC165Facet.sol";
 import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
+import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
+import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
 import {ContextLib} from "@diamond/libraries/ContextLib.sol";
@@ -33,6 +35,8 @@ contract DeployDiamond is Script, GetSelectors {
 
         // Deploy initializer contracts
         address multiInit = address(new MultiInit());
+        address diamondInit = address(new DiamondInit());
+        address erc165Init = address(new ERC165Init());
         address ownableInit = address(new OwnableInit());
 
         // Create an array of FacetCut entries for standard facets
@@ -67,11 +71,17 @@ contract DeployDiamond is Script, GetSelectors {
         });
 
         // Build MultiInit arrays for granular initialization
-        address[] memory initAddresses = new address[](1);
-        bytes[] memory initData = new bytes[](1);
+        address[] memory initAddresses = new address[](3);
+        bytes[] memory initData = new bytes[](3);
 
-        initAddresses[0] = ownableInit;
-        initData[0] = abi.encodeWithSignature("initOwner(address)", ContextLib.msgSender());
+        initAddresses[0] = diamondInit;
+        initData[0] = abi.encodeWithSignature("init()");
+
+        initAddresses[1] = erc165Init;
+        initData[1] = abi.encodeWithSignature("init()");
+
+        initAddresses[2] = ownableInit;
+        initData[2] = abi.encodeWithSignature("init(address)", ContextLib.msgSender());
 
         // Deploy the Diamond contract with the facets and initialization args
         MockDiamond diamond = new MockDiamond();
