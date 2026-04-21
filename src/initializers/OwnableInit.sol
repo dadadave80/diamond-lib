@@ -12,7 +12,8 @@ contract OwnableInit {
     /// @notice Initialize the contract owner.
     /// @dev This function is called during the diamond cut process to set up the owner.
     /// @param _owner The address to set as the contract owner.
-    function initOwner(address _owner) public {
+    function init(address _owner) public {
         OwnableLib.initializeOwner(_owner);
+        OwnableLib.registerInterface();
     }
 }

@@ -14,7 +14,7 @@ contract ERC165Facet {
     ///  uses less than 30,000 gas.
     /// @return `true` if the contract implements `_interfaceId` and
     ///  `_interfaceId` is not 0xffffffff, `false` otherwise
-    function supportsInterface(bytes4 _interfaceId) external pure returns (bool) {
+    function supportsInterface(bytes4 _interfaceId) external view returns (bool) {
         return ERC165Lib.supportsInterface(_interfaceId);
     }
 }
