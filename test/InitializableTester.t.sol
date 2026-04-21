@@ -7,6 +7,9 @@ import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {ERC165Facet} from "@diamond/facets/ERC165Facet.sol";
 import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
+import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
+import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
+import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
 import {ContextLib} from "@diamond/libraries/ContextLib.sol";
 import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
@@ -20,6 +23,9 @@ contract InitializableTester is GetSelectors {
     DiamondLoupeFacet diamondLoupeFacet;
     ERC165Facet erc165Facet;
     OwnableFacet ownableFacet;
+    MultiInit multiInit;
+    DiamondInit diamondInit;
+    ERC165Init erc165Init;
     OwnableInit ownableInit;
 
     FacetCut[] cuts;
@@ -31,7 +37,10 @@ contract InitializableTester is GetSelectors {
         erc165Facet = new ERC165Facet();
         ownableFacet = new OwnableFacet();
 
-        // Deploy initializer
+        // Deploy initializers
+        multiInit = new MultiInit();
+        diamondInit = new DiamondInit();
+        erc165Init = new ERC165Init();
         ownableInit = new OwnableInit();
 
         // Build facet cuts
@@ -235,7 +244,20 @@ contract InitializableTester is GetSelectors {
             facetCuts_[i] = cuts[i];
         }
 
-        init_ = address(ownableInit);
-        initCalldata_ = abi.encodeWithSignature("initOwner(address)", _owner);
+        // Build MultiInit arrays for granular initialization
+        address[] memory initAddresses = new address[](3);
+        bytes[] memory initData = new bytes[](3);
+
+        initAddresses[0] = address(diamondInit);
+        initData[0] = abi.encodeWithSignature("init()");
+
+        initAddresses[1] = address(erc165Init);
+        initData[1] = abi.encodeWithSignature("init()");
+
+        initAddresses[2] = address(ownableInit);
+        initData[2] = abi.encodeWithSignature("init(address)", _owner);
+
+        init_ = address(multiInit);
+        initCalldata_ = abi.encodeWithSignature("multiInit(address[],bytes[])", initAddresses, initData);
     }
 }
