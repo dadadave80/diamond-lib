@@ -115,14 +115,25 @@ struct Facet {
 }
 
 //*//////////////////////////////////////////////////////////////////////////
-//                              DIAMOND STORAGE
+//                                  STORAGE
 //////////////////////////////////////////////////////////////////////////*//
 
-// keccak256(abi.encode(uint256(keccak256("diamond.lib.storage")) - 1)) & ~bytes32(uint256(0xff));
+/// @dev `keccak256(abi.encode(uint256(keccak256("diamond.lib.storage")) - 1)) & ~bytes32(uint256(0xff)`.
 bytes32 constant DIAMOND_STORAGE_LOCATION = 0x6d5a93fec60e12d72b781fe97b2b5406e385b9eaa23d3ec2fbfa067f9d0dc000;
 
+/// @dev `keccak256(abi.encode(uint256(keccak256("diamond.lib.storage.ERC165")) - 1)) & ~bytes32(uint256(0xff))`.
+bytes32 constant ERC165_STORAGE_LOCATION = 0x9ca7f3e2e2bfb15fdf072b85dde92837cddacee6cf2f6b38cd06c9457c1c4200;
+
+/// @dev 0x1f931c1c is `type(IDiamondCut).interfaceId`.
+/// `keccak256(abi.encode(bytes4(0x1f931c1c), 0x9ca7f3e2e2bfb15fdf072b85dde92837cddacee6cf2f6b38cd06c9457c1c4200))`.
+bytes32 constant ERC165_MAP_ICUT_SLOT = 0xa0f80413692945aab97c6ef0328381ebb94e4b17a84d11ebf6b61f73435b6d7e;
+
+/// @dev 0x48e2b093 is `type(IDiamondLoupe).interfaceId`.
+/// `keccak256(abi.encode(bytes4(0x48e2b093), 0x9ca7f3e2e2bfb15fdf072b85dde92837cddacee6cf2f6b38cd06c9457c1c4200))`.
+bytes32 constant ERC165_MAP_ILOUPE_SLOT = 0x8b4e92bdfe8926212c580d8c12b81d3807ee1d50462b0f735541a0bd64c0003c;
+
 /// @notice Storage structure for managing facets and interface support in a Diamond (EIP-2535) proxy
-/// @dev Tracks function selector mappings, facet lists, and ERC-165 interface support
+/// @dev Tracks function selector mappings and facet lists
 /// @custom:storage-location erc7201:diamond.lib.storage
 struct DiamondStorage {
     /// @notice Maps each function selector to the facet address and selector’s position in that facet
@@ -148,6 +159,18 @@ library DiamondLib {
     function diamondStorage() internal pure returns (DiamondStorage storage ds_) {
         assembly {
             ds_.slot := DIAMOND_STORAGE_LOCATION
+        }
+    }
+
+    //*//////////////////////////////////////////////////////////////////////////
+    //                                ERC165 SETUP
+    //////////////////////////////////////////////////////////////////////////*//
+
+    /// @notice Registers support for IDiamondCut and IDiamondLoupe interfaces.
+    function registerInterface() internal {
+        assembly ("memory-safe") {
+            sstore(ERC165_MAP_ICUT_SLOT, true)
+            sstore(ERC165_MAP_ILOUPE_SLOT, true)
         }
     }
 
