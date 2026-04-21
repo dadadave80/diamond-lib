@@ -68,6 +68,16 @@ library OwnableLib {
     /// with both regular and upgradeable contracts.
     bytes32 internal constant _OWNER_SLOT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffff74873927;
 
+    /// @dev The ERC165 storage slot is given by:
+    /// `keccak256(abi.encode(uint256(keccak256("diamond.lib.storage.ERC165")) - 1)) & ~bytes32(uint256(0xff))`.
+    bytes32 internal constant _ERC165_SLOT = 0x9ca7f3e2e2bfb15fdf072b85dde92837cddacee6cf2f6b38cd06c9457c1c4200;
+
+    /// @dev The ERC173 support mapping slot is given by:
+    /// 0x7f5828d0 is `type(IERC173).interfaceId`.
+    /// `keccak256(abi.encode(bytes4(0x7f5828d0), 0x9ca7f3e2e2bfb15fdf072b85dde92837cddacee6cf2f6b38cd06c9457c1c4200))`.
+    bytes32 internal constant _ERC165_MAP_IERC173_SLOT =
+        0xa572bbb13abe0b267cc0598d63b6a0e1b1511061fcb881c0bfcf34c8862d6431;
+
     /// The ownership handover slot of `newOwner` is given by:
     /// ```
     ///     mstore(0x00, or(shl(96, user), _HANDOVER_SLOT_SEED))
@@ -79,6 +89,13 @@ library OwnableLib {
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                     INTERNAL FUNCTIONS                     */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @dev Registers support for ERC173 interface in the ERC165 storage.
+    function registerInterface() internal {
+        assembly ("memory-safe") {
+            sstore(_ERC165_MAP_IERC173_SLOT, true)
+        }
+    }
 
     /// @dev Initializes the owner directly without authorization guard.
     /// This function must be called upon initialization,
