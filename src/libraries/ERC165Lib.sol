@@ -28,6 +28,8 @@ library ERC165Lib {
     /// @dev Returns a reference to the ERC165 storage struct located at slot 0x9ca7f3e2e2bfb15fdf072b85dde92837cddacee6cf2f6b38cd06c9457c1c4200
     function erc165Storage() internal pure returns (ERC165Storage storage es_) {
         assembly {
+            // Set the storage struct's slot to the ERC165_STORAGE_LOCATION constant
+            // This allows the mapping inside ERC165Storage to be accessed via es_.supportedInterfaces
             es_.slot := ERC165_STORAGE_LOCATION
         }
     }
@@ -35,6 +37,7 @@ library ERC165Lib {
     /// @notice Registers support for the ERC165 interface and other standard interfaces
     /// @dev Marks this library as implementing ERC165 interface by setting the appropriate flag in storage.
     ///  Must be called before using supportsInterface().
+    /// Stores directly to _ERC165_MAP_IERC165_SLOT to indicate ERC165 support.
     function registerInterface() internal {
         assembly ("memory-safe") {
             sstore(_ERC165_MAP_IERC165_SLOT, true)
@@ -45,11 +48,21 @@ library ERC165Lib {
     /// @param _interfaceId The interface identifier, as specified in ERC-165 (bytes4)
     /// @return supported_ `true` if the contract implements `interfaceID`, `false` otherwise
     /// @dev Interface identification is specified in ERC-165. This function uses less than 30,000 gas.
+    /// Computes storage location: keccak256(abi.encode(_interfaceId, ERC165_STORAGE_LOCATION))
     function supportsInterface(bytes4 _interfaceId) internal view returns (bool supported_) {
         assembly ("memory-safe") {
-            // Compute the storage key: keccak256(abi.encode(_interfaceId, ERC165_STORAGE_LOCATION))
+            // Compute the storage key for this interface in the mapping:
+            // keccak256(abi.encode(_interfaceId, ERC165_STORAGE_LOCATION))
+
+            // Store _interfaceId at memory offset 0x00
             mstore(0x00, _interfaceId)
+
+            // Store ERC165_STORAGE_LOCATION at memory offset 0x20
             mstore(0x20, ERC165_STORAGE_LOCATION)
+
+            // Hash the packed encoding (0x00:0x40 = 64 bytes)
+            // This is the storage key for the mapping entry
+            // Load the value from that key
             supported_ := sload(keccak256(0x00, 0x40))
         }
     }

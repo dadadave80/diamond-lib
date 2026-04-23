@@ -65,27 +65,52 @@ library InitializableLib {
 
     function preInitializer(bytes32 _initializableSlot) internal {
         assembly ("memory-safe") {
+            // Storage Layout:
+            // Bit 0:      initializing flag (1 = currently initializing, prevents reentrancy)
+            // Bits 1-64:  initialized version (0 = never init, 1+ = initialized to version)
+
             let i := sload(_initializableSlot)
-            // Set `initializing` to 1, `initializedVersion` to 1.
+
+            // Set slot to 3 (binary: 11):
+            // Bit 0 = 1 (initializing = true)
+            // Bit 1 = 1 (version = 1)
             sstore(_initializableSlot, 3)
-            // If `!(initializing == 0 && initializedVersion == 0)`.
+
+            // If i != 0, this means contract has previous initialization state
             if i {
-                // If `!(address(this).code.length == 0 && initializedVersion == 1)`.
+                // Check: allow reinitialization only if:
+                // 1. Contract has code (not being called from constructor)
+                // 2. Previous version is exactly 1 (reinitializer pattern for v1→v2+)
+                //
+                // The condition iszero(lt(extcodesize(address()), eq(shr(1, i), 1)))
+                // is logically: NOT(code.length == 0 OR version != 1)
+                // which means: (code.length != 0 AND version == 1)
+                //
+                // If false, revert with InvalidInitialization error
                 if iszero(lt(extcodesize(address()), eq(shr(1, i), 1))) {
                     mstore(0x00, 0xf92ee8a9) // `InvalidInitialization()`.
                     revert(0x1c, 0x04)
                 }
-                _initializableSlot := shl(shl(255, i), _initializableSlot) // Skip initializing if `initializing == 1`.
+
+                // This operation zeros out the slot variable by shifting it left 256 bits,
+                // which in the postInitializer context indicates we should skip the
+                // final postInitializer sstore (because we're in constructor reentry case)
+                _initializableSlot := shl(shl(255, i), _initializableSlot)
             }
         }
     }
 
     function postInitializer(bytes32 _initializableSlot) internal {
         assembly ("memory-safe") {
+            // Skip if _initializableSlot was zeroed by preInitializer
+            // (indicates constructor reentry case)
             if _initializableSlot {
-                // Set `initializing` to 0, `initializedVersion` to 1.
+                // Set slot to 2 (binary: 10):
+                // Bit 0 = 0 (initializing = false, reentrancy guard released)
+                // Bit 1 = 1 (version = 1)
                 sstore(_initializableSlot, 2)
-                // Emit the {Initialized} event.
+
+                // Emit Initialized(1) event with version = 1
                 mstore(0x20, 1)
                 log1(0x20, 0x20, _INITIALIZED_EVENT_SIGNATURE)
             }

@@ -107,36 +107,68 @@ library OwnableLib {
     function initializeOwner(address newOwner) internal {
         assembly ("memory-safe") {
             let ownerSlot := _OWNER_SLOT
+
+            // Check if owner already initialized (slot != 0)
             if sload(ownerSlot) {
                 mstore(0x00, 0x0dc149f0) // `AlreadyInitialized()`.
                 revert(0x1c, 0x04)
             }
-            // Clean the upper 96 bits.
+
+            // Clean the upper 96 bits of newOwner to ensure proper address formatting
+            // shl(96, x) shifts left by 96 bits (12 bytes)
+            // shr(96, y) shifts right by 96 bits
+            // Together: shr(96, shl(96, x)) keeps only bits 0-159 (20 bytes for address)
             newOwner := shr(96, shl(96, newOwner))
-            // Store the new value.
+
+            // Store owner value in slot.
+            // Storage format: address in bits 0-159, bit 255 = 1 if address is zero
+            // or(newOwner, shl(255, iszero(newOwner))):
+            //   - iszero(newOwner) returns 1 if address is zero, 0 otherwise
+            //   - shl(255, ...) shifts that to bit 255
+            //   - or(...) combines with address
             sstore(ownerSlot, or(newOwner, shl(255, iszero(newOwner))))
-            // Emit the {OwnershipTransferred} event.
+
+            // Emit OwnershipTransferred(address(0), newOwner)
+            // log3: 3 indexed topics
+            //   topic1 = event signature
+            //   topic2 = oldOwner (0)
+            //   topic3 = newOwner
+            // No data (0, 0 for offset and size)
             log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, 0, newOwner)
         }
     }
 
     /// @dev Sets the owner directly without authorization guard.
+    /// Emit the {OwnershipTransferred} event on change.
+    /// Uses same storage format as initializeOwner for consistency.
     function setOwner(address newOwner) internal {
         assembly ("memory-safe") {
             let ownerSlot := _OWNER_SLOT
-            // Clean the upper 96 bits.
+
+            // Clean the upper 96 bits to ensure proper address formatting
             newOwner := shr(96, shl(96, newOwner))
-            // Emit the {OwnershipTransferred} event.
+
+            // Emit OwnershipTransferred(oldOwner, newOwner) with both indexed
+            // log3: 3 indexed topics
+            //   topic1 = event signature
+            //   topic2 = oldOwner (loaded from storage)
+            //   topic3 = newOwner
             log3(0, 0, _OWNERSHIP_TRANSFERRED_EVENT_SIGNATURE, sload(ownerSlot), newOwner)
-            // Store the new value.
+
+            // Store the new owner value with same format
+            // Bit 255 = 1 if address is zero (prevents storage optimization tricks)
             sstore(ownerSlot, or(newOwner, shl(255, iszero(newOwner))))
         }
     }
 
     /// @dev Throws if the sender is not the owner.
+    /// Used as access control check for privileged functions.
+    /// Reverts with 0x82b42900 error code (Unauthorized).
     function checkOwner() internal view {
         assembly ("memory-safe") {
-            // If the caller is not the stored owner, revert.
+            // Load owner from storage slot
+            // Compare caller() with stored owner value
+            // If not equal, revert immediately
             if iszero(eq(caller(), sload(_OWNER_SLOT))) {
                 mstore(0x00, 0x82b42900) // `Unauthorized()`.
                 revert(0x1c, 0x04)
