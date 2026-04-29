@@ -34,10 +34,7 @@ contract DeployDiamond is Script, GetSelectors {
         OwnableFacet ownableFacet = new OwnableFacet();
 
         // Deploy initializer contracts
-        address multiInit = address(new MultiInit());
         address diamondInit = address(new DiamondInit());
-        address erc165Init = address(new ERC165Init());
-        address ownableInit = address(new OwnableInit());
 
         // Create an array of FacetCut entries for standard facets
         FacetCut[] memory cut = new FacetCut[](4);
@@ -70,24 +67,9 @@ contract DeployDiamond is Script, GetSelectors {
             functionSelectors: _getSelectors("OwnableFacet")
         });
 
-        // Build MultiInit arrays for granular initialization
-        address[] memory initAddresses = new address[](3);
-        bytes[] memory initData = new bytes[](3);
-
-        initAddresses[0] = diamondInit;
-        initData[0] = abi.encodeWithSignature("init()");
-
-        initAddresses[1] = erc165Init;
-        initData[1] = abi.encodeWithSignature("init()");
-
-        initAddresses[2] = ownableInit;
-        initData[2] = abi.encodeWithSignature("init(address)", ContextLib.msgSender());
-
         // Deploy the Diamond contract with the facets and initialization args
         MockDiamond diamond = new MockDiamond();
-        diamond.initialize(
-            cut, multiInit, abi.encodeWithSignature("multiInit(address[],bytes[])", initAddresses, initData)
-        );
+        diamond.initialize(cut, diamondInit, abi.encodeWithSignature("init(address)", ContextLib.msgSender()));
         diamond_ = address(diamond);
         vm.stopBroadcast();
     }
