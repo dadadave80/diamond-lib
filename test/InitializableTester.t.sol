@@ -244,20 +244,7 @@ contract InitializableTester is GetSelectors {
             facetCuts_[i] = cuts[i];
         }
 
-        // Build MultiInit arrays for granular initialization
-        address[] memory initAddresses = new address[](3);
-        bytes[] memory initData = new bytes[](3);
-
-        initAddresses[0] = address(diamondInit);
-        initData[0] = abi.encodeWithSignature("init()");
-
-        initAddresses[1] = address(erc165Init);
-        initData[1] = abi.encodeWithSignature("init()");
-
-        initAddresses[2] = address(ownableInit);
-        initData[2] = abi.encodeWithSignature("init(address)", _owner);
-
-        init_ = address(multiInit);
-        initCalldata_ = abi.encodeWithSignature("multiInit(address[],bytes[])", initAddresses, initData);
+        init_ = address(diamondInit);
+        initCalldata_ = abi.encodeWithSignature("init(address)", _owner);
     }
 }
