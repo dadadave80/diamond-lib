@@ -4,7 +4,7 @@
 
 > [!WARNING]
 > **Pending Security Audits**
-> This library is currently under active development and security review. **Do not use in production** until formal security audits are completed. Breaking changes may occur as we prepare for audit release.
+> This library is currently under active development and security review. **Do not use in production** until formal security audits are completed.
 
 ---
 
