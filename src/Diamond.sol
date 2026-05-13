@@ -40,7 +40,7 @@ contract Diamond {
     /// @param _init Address of the initialization contract
     /// @param _calldata Calldata to be passed to the initialization contract
     function initialize(FacetCut[] calldata _facetCuts, address _init, bytes calldata _calldata)
-        external
+        public
         payable
         virtual
     {
