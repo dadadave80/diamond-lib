@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {IFacet} from "@diamond/interfaces/IFacet.sol";
 import {OwnableLib} from "@diamond/libraries/OwnableLib.sol";
 
 /// @title OwnableRolesFacet
@@ -15,7 +16,7 @@ import {OwnableLib} from "@diamond/libraries/OwnableLib.sol";
 /// While the ownable portion follows
 /// [EIP-173](https://eips.ethereum.org/EIPS/eip-173) for compatibility,
 /// the nomenclature for the 2-step ownership handover may be unique to this codebase.
-contract OwnableFacet {
+contract OwnableFacet is IFacet {
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                  PUBLIC UPDATE FUNCTIONS                   */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
@@ -59,6 +60,23 @@ contract OwnableFacet {
     /// @dev Returns the expiry timestamp for the two-step ownership handover to `pendingOwner`.
     function ownershipHandoverExpiresAt(address _pendingOwner) public view returns (uint256) {
         return OwnableLib.ownershipHandoverExpiresAt(_pendingOwner);
+    }
+
+    /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
+    /*                 ERC-8153 SELF-DESCRIPTION                  */
+    /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
+    /// @inheritdoc IFacet
+    function exportSelectors() external pure returns (bytes memory selectors_) {
+        selectors_ = abi.encodePacked(
+            this.transferOwnership.selector,
+            this.renounceOwnership.selector,
+            this.requestOwnershipHandover.selector,
+            this.cancelOwnershipHandover.selector,
+            this.completeOwnershipHandover.selector,
+            this.owner.selector,
+            this.ownershipHandoverExpiresAt.selector
+        );
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/

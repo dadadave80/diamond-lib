@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {Selectors} from "@diamond-test/helpers/Selectors.sol";
 import {Utils} from "@diamond-test/helpers/Utils.sol";
 import {DeployedDiamondState} from "@diamond-test/states/DeployedDiamondState.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
+import {IFacet} from "@diamond/interfaces/IFacet.sol";
 import {Facet} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title DiamondTester
@@ -36,12 +38,12 @@ contract DiamondTester is DeployedDiamondState {
     /*              LOUPE — Inspecting the Cut                      */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    /// @notice Every expected selector is registered under its facet
-    function testLoupe_SelectorsAreComplete() public {
+    /// @notice Every selector a facet self-reports (ERC-8153) is registered under that facet
+    function testLoupe_SelectorsAreComplete() public view {
         for (uint256 i; i < facetAddresses.length; ++i) {
-            bytes4[] memory fromGenSelectors = _getSelectors(facetNames[i]);
-            for (uint256 j; j < fromGenSelectors.length; ++j) {
-                assertEq(facetAddresses[i], diamondLoupe.facetAddress(fromGenSelectors[j]));
+            bytes4[] memory exported = Selectors.decode(IFacet(facetAddresses[i]).exportSelectors());
+            for (uint256 j; j < exported.length; ++j) {
+                assertEq(facetAddresses[i], diamondLoupe.facetAddress(exported[j]));
             }
         }
     }

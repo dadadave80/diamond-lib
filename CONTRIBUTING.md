@@ -18,10 +18,8 @@ forge build
 
 ## Running Tests
 
-Tests use FFI for selector extraction, so the `--ffi` flag is required:
-
 ```sh
-forge test --ffi -vvv
+forge test -vvv
 ```
 
 ## Making Changes
@@ -34,7 +32,7 @@ forge test --ffi -vvv
    - `src/initializers/` — Initializer contracts
 3. Add or update tests in `test/` to cover your changes.
 4. Run `forge fmt` to format your code.
-5. Ensure all tests pass with `forge test --ffi`.
+5. Ensure all tests pass with `forge test`.
 6. Open a pull request against `main`.
 
 ## Guidelines
@@ -42,6 +40,7 @@ forge test --ffi -vvv
 - Keep gas efficiency in mind — this library is optimized for minimal overhead.
 - Follow existing code style and naming conventions.
 - One logical change per PR — avoid bundling unrelated changes.
+- Selectors are self-reported on-chain via ERC-8153 `exportSelectors()`. When you add an external/public function to a facet, you MUST also add its selector to that facet's `exportSelectors()`, extend the expected set in `test/ExportSelectorsTester.t.sol`, and exercise it through the diamond with a routed-call test. A function omitted from `exportSelectors()` will not be cut in or routed — and no test will fail unless you add one.
 - Include test cases for both success and failure paths.
 
 ## Reporting Issues

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
+import {Selectors} from "@diamond-test/helpers/Selectors.sol";
 import {ReinitializableDiamond} from "@diamond-test/mocks/ReinitializableDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
@@ -11,13 +11,15 @@ import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
 import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
+import {IFacet} from "@diamond/interfaces/IFacet.sol";
 import {ContextLib} from "@diamond/libraries/ContextLib.sol";
 import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
 import {Initialized, InvalidInitialization} from "@diamond/libraries/InitializableLib.sol";
+import {Test} from "forge-std/Test.sol";
 
 /// @title InitializableTester
 /// @notice Tests for the initializable Diamond pattern
-contract InitializableTester is GetSelectors {
+contract InitializableTester is Test {
     ReinitializableDiamond diamond;
     DiamondCutFacet diamondCutFacet;
     DiamondLoupeFacet diamondLoupeFacet;
@@ -48,28 +50,28 @@ contract InitializableTester is GetSelectors {
             FacetCut({
                 facetAddress: address(diamondCutFacet),
                 action: FacetCutAction.Add,
-                functionSelectors: _getSelectors("DiamondCutFacet")
+                functionSelectors: Selectors.decode(IFacet(address(diamondCutFacet)).exportSelectors())
             })
         );
         cuts.push(
             FacetCut({
                 facetAddress: address(diamondLoupeFacet),
                 action: FacetCutAction.Add,
-                functionSelectors: _getSelectors("DiamondLoupeFacet")
+                functionSelectors: Selectors.decode(IFacet(address(diamondLoupeFacet)).exportSelectors())
             })
         );
         cuts.push(
             FacetCut({
                 facetAddress: address(erc165Facet),
                 action: FacetCutAction.Add,
-                functionSelectors: _getSelectors("ERC165Facet")
+                functionSelectors: Selectors.decode(IFacet(address(erc165Facet)).exportSelectors())
             })
         );
         cuts.push(
             FacetCut({
                 facetAddress: address(ownableFacet),
                 action: FacetCutAction.Add,
-                functionSelectors: _getSelectors("OwnableFacet")
+                functionSelectors: Selectors.decode(IFacet(address(ownableFacet)).exportSelectors())
             })
         );
 
