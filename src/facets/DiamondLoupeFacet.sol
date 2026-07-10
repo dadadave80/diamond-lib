@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {IDiamondLoupe} from "@diamond/interfaces/IDiamondLoupe.sol";
+import {IFacet} from "@diamond/interfaces/IFacet.sol";
 import {DiamondLib, DiamondStorage, Facet} from "@diamond/libraries/DiamondLib.sol";
 
 /// @title DiamondLoupeFacet
@@ -10,7 +11,7 @@ import {DiamondLib, DiamondStorage, Facet} from "@diamond/libraries/DiamondLib.s
 /// @author Modified by David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 ///
 /// @dev Implements the IDiamondLoupe interface as defined in EIP-2535
-contract DiamondLoupeFacet is IDiamondLoupe {
+contract DiamondLoupeFacet is IDiamondLoupe, IFacet {
     /// @notice Gets all facet addresses and their function selectors.
     /// @return facets_ Facet
     function facets() external view returns (Facet[] memory facets_) {
@@ -43,5 +44,15 @@ contract DiamondLoupeFacet is IDiamondLoupe {
     /// @return The address of the facet that supports the given selector.
     function facetAddress(bytes4 _functionSelector) external view override returns (address) {
         return DiamondLib.diamondStorage().selectorToFacetAndPosition[_functionSelector].facetAddress;
+    }
+
+    /// @inheritdoc IFacet
+    function exportSelectors() external pure returns (bytes memory selectors_) {
+        selectors_ = abi.encodePacked(
+            this.facets.selector,
+            this.facetFunctionSelectors.selector,
+            this.facetAddresses.selector,
+            this.facetAddress.selector
+        );
     }
 }
