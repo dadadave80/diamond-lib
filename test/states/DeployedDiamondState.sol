@@ -2,15 +2,15 @@
 pragma solidity ^0.8.20;
 
 import {DeployDiamond} from "@diamond-script/DeployDiamond.s.sol";
-import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {ERC165Facet} from "@diamond/facets/ERC165Facet.sol";
 import {OwnableFacet} from "@diamond/facets/OwnableFacet.sol";
 import {IDiamondCut} from "@diamond/interfaces/IDiamondCut.sol";
+import {Test} from "forge-std/Test.sol";
 
 /// @notice Provides shared state for tests involving a freshly deployed Diamond contract.
 /// @dev Sets up references to deployed facets, interfaces, and the diamond itself for testing.
-abstract contract DeployedDiamondState is GetSelectors {
+abstract contract DeployedDiamondState is Test {
     DeployDiamond deployDiamond;
     /// @notice Instance of the deployed Diamond contract.
     address public diamond;
@@ -29,9 +29,6 @@ abstract contract DeployedDiamondState is GetSelectors {
 
     /// @notice Stores the facet addresses returned from the diamond loupe.
     address[] public facetAddresses;
-
-    /// @notice List of facet contract names used in deployment.
-    string[4] public facetNames = ["DiamondCutFacet", "DiamondLoupeFacet", "ERC165Facet", "OwnableFacet"];
 
     address public diamondOwner = address(this);
 

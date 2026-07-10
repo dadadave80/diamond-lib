@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {GetSelectors} from "@diamond-test/helpers/GetSelectors.sol";
+import {Selectors} from "@diamond-test/helpers/Selectors.sol";
 import {MockDiamond} from "@diamond-test/mocks/MockDiamond.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
@@ -11,6 +11,7 @@ import {DiamondInit} from "@diamond/initializers/DiamondInit.sol";
 import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
+import {IFacet} from "@diamond/interfaces/IFacet.sol";
 import {ContextLib} from "@diamond/libraries/ContextLib.sol";
 import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
 import {Script} from "forge-std/Script.sol";
@@ -20,7 +21,7 @@ import {Script} from "forge-std/Script.sol";
 /// @author David Dada
 ///
 /// @dev Uses Foundry's `Script` and a helper contract to deploy and wire up DiamondCutFacet, DiamondLoupeFacet, and OwnableFacet
-contract DeployDiamond is Script, GetSelectors {
+contract DeployDiamond is Script {
     /// @notice Executes the deployment of the Diamond contract with the initial facets and ERC165 interface setup
     /// @dev Broadcasts transactions using Foundry's scripting environment (`vm.startBroadcast()` and `vm.stopBroadcast()`).
     ///      Deploys three core facets, sets up DiamondArgs, encodes an initializer call, and constructs the Diamond.
@@ -39,32 +40,32 @@ contract DeployDiamond is Script, GetSelectors {
         // Create an array of FacetCut entries for standard facets
         FacetCut[] memory cut = new FacetCut[](4);
 
-        // Add DiamondCutFacet to the cut list
+        // Add DiamondCutFacet to the cut list (selectors read on-chain via ERC-8153 exportSelectors)
         cut[0] = FacetCut({
             facetAddress: address(diamondCutFacet),
             action: FacetCutAction.Add,
-            functionSelectors: _getSelectors("DiamondCutFacet")
+            functionSelectors: Selectors.decode(IFacet(address(diamondCutFacet)).exportSelectors())
         });
 
         // Add DiamondLoupeFacet to the cut list
         cut[1] = FacetCut({
             facetAddress: address(diamondLoupeFacet),
             action: FacetCutAction.Add,
-            functionSelectors: _getSelectors("DiamondLoupeFacet")
+            functionSelectors: Selectors.decode(IFacet(address(diamondLoupeFacet)).exportSelectors())
         });
 
         // Add ERC165Facet to the cut list
         cut[2] = FacetCut({
             facetAddress: address(erc165Facet),
             action: FacetCutAction.Add,
-            functionSelectors: _getSelectors("ERC165Facet")
+            functionSelectors: Selectors.decode(IFacet(address(erc165Facet)).exportSelectors())
         });
 
         // Add OwnableFacet to the cut list
         cut[3] = FacetCut({
             facetAddress: address(ownableFacet),
             action: FacetCutAction.Add,
-            functionSelectors: _getSelectors("OwnableFacet")
+            functionSelectors: Selectors.decode(IFacet(address(ownableFacet)).exportSelectors())
         });
 
         // Deploy the Diamond contract with the facets and initialization args
