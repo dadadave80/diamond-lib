@@ -33,7 +33,7 @@ bytes32 constant _INITIALIZED_EVENT_SIGNATURE = 0xc7f505b2f371ae2175ee4913f4499e
 /// - [1..64] `initializedVersion`
 bytes32 constant _INITIALIZABLE_SLOT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffbf601132;
 
-/// @notice Initializable mixin for the upgradeable contracts.
+/// @notice Initialization guard logic shared by `Initializable` and diamond facets.
 /// @author Solady (https://github.com/vectorized/solady/blob/main/src/utils/Initializable.sol)
 /// @author Modified from OpenZeppelin (https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/proxy/utils/Initializable.sol)
 library InitializableLib {
@@ -41,69 +41,61 @@ library InitializableLib {
     /*                         OPERATIONS                         */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    /// @dev Override to return a non-zero custom storage slot if required.
+    /// @dev Returns the default initializable storage slot.
     function initializableSlot() internal pure returns (bytes32) {
         return _INITIALIZABLE_SLOT;
     }
 
-    /// @dev Guards an initializer function so that it can be invoked at most once.
+    /// @dev Marks the start of an initializer-guarded function.
     ///
-    /// You can guard a function with `onlyInitializing` such that it can be called
-    /// through a function guarded with `initializer`.
-    ///
-    /// This is similar to `reinitializer(1)`, except that in the context of a constructor,
-    /// an `initializer` guarded function can be invoked multiple times.
-    /// This can be useful during testing and is not expected to be used in production.
-    ///
-    /// Emits an {Initialized} event.
-    modifier initializer() {
-        bytes32 s = initializableSlot();
-        preInitializer(s);
-        _;
-        postInitializer(s);
-    }
-
-    function preInitializer(bytes32 _initializableSlot) internal {
+    /// Returns the slot to pass to `postInitializer`. In the nested
+    /// constructor-initializer case the returned slot is zero, which tells
+    /// `postInitializer` to skip finalization — the outermost initializer
+    /// clears the flag and emits the event exactly once. Always pass the
+    /// RETURNED value to `postInitializer`, not the original slot.
+    function preInitializer(bytes32 _initializableSlot) internal returns (bytes32 slot_) {
+        slot_ = _initializableSlot;
         assembly ("memory-safe") {
             // Storage Layout:
             // Bit 0:      initializing flag (1 = currently initializing, prevents reentrancy)
             // Bits 1-64:  initialized version (0 = never init, 1+ = initialized to version)
 
-            let i := sload(_initializableSlot)
+            let i := sload(slot_)
 
             // Set slot to 3 (binary: 11):
             // Bit 0 = 1 (initializing = true)
             // Bit 1 = 1 (version = 1)
-            sstore(_initializableSlot, 3)
+            sstore(slot_, 3)
 
             // If i != 0, this means contract has previous initialization state
             if i {
-                // Check: allow reinitialization only if:
-                // 1. Contract has code (not being called from constructor)
-                // 2. Previous version is exactly 1 (reinitializer pattern for v1→v2+)
+                // Allow re-invocation only if:
+                // 1. Contract has no code yet (being called from constructor)
+                // 2. Previous version is exactly 1
                 //
                 // The condition iszero(lt(extcodesize(address()), eq(shr(1, i), 1)))
-                // is logically: NOT(code.length == 0 OR version != 1)
-                // which means: (code.length != 0 AND version == 1)
+                // is logically: NOT(code.length == 0 AND version == 1)
                 //
-                // If false, revert with InvalidInitialization error
+                // If true, revert with InvalidInitialization error
                 if iszero(lt(extcodesize(address()), eq(shr(1, i), 1))) {
                     mstore(0x00, 0xf92ee8a9) // `InvalidInitialization()`.
                     revert(0x1c, 0x04)
                 }
 
-                // This operation zeros out the slot variable by shifting it left 256 bits,
-                // which in the postInitializer context indicates we should skip the
-                // final postInitializer sstore (because we're in constructor reentry case)
-                _initializableSlot := shl(shl(255, i), _initializableSlot)
+                // If the old initializing bit was set (nested call within a
+                // constructor's initializer), zero out the returned slot so
+                // `postInitializer` skips finalization.
+                slot_ := shl(shl(255, i), slot_)
             }
         }
     }
 
+    /// @dev Marks the end of an initializer-guarded function.
+    /// Takes the slot RETURNED by `preInitializer`.
     function postInitializer(bytes32 _initializableSlot) internal {
         assembly ("memory-safe") {
-            // Skip if _initializableSlot was zeroed by preInitializer
-            // (indicates constructor reentry case)
+            // Skip if `preInitializer` returned zero
+            // (nested constructor initializer case)
             if _initializableSlot {
                 // Set slot to 2 (binary: 10):
                 // Bit 0 = 0 (initializing = false, reentrancy guard released)
@@ -117,19 +109,7 @@ library InitializableLib {
         }
     }
 
-    /// @dev Guards a reinitializer function so that it can be invoked at most once.
-    ///
-    /// You can guard a function with `onlyInitializing` such that it can be called
-    /// through a function guarded with `reinitializer`.
-    ///
-    /// Emits an {Initialized} event.
-    modifier reinitializer(uint64 _version) {
-        bytes32 s = initializableSlot();
-        preReinitializer(s, _version);
-        _;
-        postReinitializer(s, _version);
-    }
-
+    /// @dev Marks the start of a reinitializer-guarded function.
     function preReinitializer(bytes32 _initializableSlot, uint64 _version) internal {
         assembly ("memory-safe") {
             // Clean upper bits, and shift left by 1 to make space for the initializing bit.
@@ -145,6 +125,7 @@ library InitializableLib {
         }
     }
 
+    /// @dev Marks the end of a reinitializer-guarded function.
     function postReinitializer(bytes32 _initializableSlot, uint64 _version) internal {
         assembly ("memory-safe") {
             // Clean upper bits, and shift left by 1 to match storage layout.
@@ -155,13 +136,6 @@ library InitializableLib {
             mstore(0x20, shr(1, _version))
             log1(0x20, 0x20, _INITIALIZED_EVENT_SIGNATURE)
         }
-    }
-
-    /// @dev Guards a function such that it can only be called in the scope
-    /// of a function guarded with `initializer` or `reinitializer`.
-    modifier onlyInitializing() {
-        checkInitializing(initializableSlot());
-        _;
     }
 
     /// @dev Reverts if the contract is not initializing.

@@ -3,6 +3,8 @@ pragma solidity ^0.8.20;
 
 import {Selectors} from "@diamond-test/helpers/Selectors.sol";
 import {ReinitializableDiamond} from "@diamond-test/mocks/ReinitializableDiamond.sol";
+import {Initializable} from "@diamond-test/utils/Initializable.sol";
+import {Initialized, InvalidInitialization} from "@diamond-test/utils/InitializableLib.sol";
 import {DiamondCutFacet} from "@diamond/facets/DiamondCutFacet.sol";
 import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {ERC165Facet} from "@diamond/facets/ERC165Facet.sol";
@@ -12,10 +14,24 @@ import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
 import {IFacet} from "@diamond/interfaces/IFacet.sol";
-import {ContextLib} from "@diamond/libraries/ContextLib.sol";
 import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
-import {Initialized, InvalidInitialization} from "@diamond/libraries/InitializableLib.sol";
-import {Test} from "forge-std/Test.sol";
+import {Test, Vm} from "forge-std/Test.sol";
+
+/// @dev Exercises nested `initializer` calls within a constructor.
+contract NestedInitMock is Initializable {
+    bool public wasInitializingAfterNested;
+
+    constructor() {
+        outer();
+    }
+
+    function outer() public initializer {
+        inner();
+        wasInitializingAfterNested = _isInitializing();
+    }
+
+    function inner() public initializer {}
+}
 
 /// @title InitializableTester
 /// @notice Tests for the initializable Diamond pattern
@@ -104,6 +120,22 @@ contract InitializableTester is Test {
 
         assertEq(diamond.getInitializedVersion(), 1);
         assertFalse(diamond.isInitializing());
+    }
+
+    /// @notice A nested initializer inside a constructor finalizes exactly once:
+    /// the inner call must not clear the initializing flag or emit its own event
+    function testNestedConstructorInitializerFinalizesOnce() public {
+        vm.recordLogs();
+        NestedInitMock mock = new NestedInitMock();
+
+        uint256 count;
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+        for (uint256 i; i < logs.length; ++i) {
+            if (logs[i].topics[0] == keccak256("Initialized(uint64)")) ++count;
+        }
+
+        assertEq(count, 1);
+        assertTrue(mock.wasInitializingAfterNested());
     }
 
     /// @notice Second call to initialize reverts with InvalidInitialization

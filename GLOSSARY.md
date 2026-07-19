@@ -144,8 +144,8 @@ Process of setting up the Diamond when it's first deployed.
 - Must be atomic (all succeed or all fail)
 
 **Process**:
-1. Deploy Diamond (empty, no functions yet)
-2. Call `initialize(cuts, initContract, initData)`
+1. Deploy facets and the initializer contract
+2. Deploy your concrete diamond — its constructor calls `diamondCut(cuts, initContract, initData)`
 3. Facets are added via diamond cuts
 4. Initialization contract runs (sets owner, etc.)
 5. Diamond is ready
@@ -164,27 +164,6 @@ function init() external {
 ```
 
 **Execution**: Runs via delegatecall in Diamond's context
-
-### Reinitialization
-Updating initialization state without resetting everything.
-
-**Use case**: Upgrade with new state variables
-
-**Protection**: Version tracking prevents accidental reinitialization
-- v1 → v2 (success)
-- v2 → v2 (failure: already at this version)
-- v2 → v1 (failure: cannot go backward)
-
-### Initialization Guard
-Mechanism preventing reentrancy during initialization.
-
-**Implementation**:
-```solidity
-// Flag: 0 = not init, 1 = currently initializing, 2 = done
-if (isInitializing) revert InvalidInitialization();
-```
-
-**Prevents**: Accidentally calling initialization again during initialization
 
 ---
 
@@ -421,13 +400,6 @@ Function selector doesn't route to any facet.
 - Facet not actually added
 
 **Fix**: Use loupe to verify `facetAddress(selector)` returns non-zero
-
-### "Invalid initialization" Error
-Attempt to reinitialize to same or lower version.
-
-**Cause**: Already initialized and version unchanged
-
-**Fix**: Increment version number for reinitializations
 
 ### "Cannot add function to diamond that already exists" Error
 Selector already has a mapping.

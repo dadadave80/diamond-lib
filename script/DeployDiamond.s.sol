@@ -12,7 +12,6 @@ import {ERC165Init} from "@diamond/initializers/ERC165Init.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
 import {IFacet} from "@diamond/interfaces/IFacet.sol";
-import {ContextLib} from "@diamond/libraries/ContextLib.sol";
 import {FacetCut, FacetCutAction} from "@diamond/libraries/DiamondLib.sol";
 import {Script} from "forge-std/Script.sol";
 
@@ -70,7 +69,7 @@ contract DeployDiamond is Script {
 
         // Deploy the Diamond contract with the facets and initialization args
         MockDiamond diamond = new MockDiamond();
-        diamond.initialize(cut, diamondInit, abi.encodeWithSignature("init(address)", ContextLib.msgSender()));
+        diamond.initialize(cut, diamondInit, abi.encodeWithSignature("init(address)", msg.sender));
         diamond_ = address(diamond);
         vm.stopBroadcast();
     }
