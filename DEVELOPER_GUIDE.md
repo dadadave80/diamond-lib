@@ -237,12 +237,11 @@ bytes32 constant STORAGE_LOCATION_2 = keccak256(abi.encode("1"));
 
 ```solidity
 contract DiamondTest is Test {
-    Diamond diamond;
+    MyDiamond diamond;
     
     function setUp() public {
-        // Deploy and initialize
-        diamond = new Diamond();
-        // ... initialization code ...
+        // Constructor applies the cuts and runs the init contract
+        diamond = new MyDiamond(cuts, address(diamondInit), initData);
     }
     
     function test_DiamondInitialized() public {

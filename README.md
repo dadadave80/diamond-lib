@@ -60,7 +60,6 @@ src/
 ├── libraries/
 │   ├── DiamondLib.sol         # Core Diamond logic
 │   ├── OwnableLib.sol         # Ownership primitives
-│   ├── InitializableLib.sol   # Initialization guards
 │   └── ERC165Lib.sol          # Interface registration
 └── script/
     └── DeployDiamond.s.sol    # Foundry deployment script

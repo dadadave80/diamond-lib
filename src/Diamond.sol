@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {DiamondLib, FacetCut} from "@diamond/libraries/DiamondLib.sol";
-import {InitializableLib} from "@diamond/libraries/InitializableLib.sol";
+import {DiamondLib} from "@diamond/libraries/DiamondLib.sol";
 
 /*
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀
@@ -35,23 +34,7 @@ import {InitializableLib} from "@diamond/libraries/InitializableLib.sol";
 /// @notice Implements ERC-2535 Diamond proxy pattern, allowing dynamic addition, replacement, and removal of facets
 /// @author David Dada <daveproxy80@gmail.com> (https://github.com/dadadave80)
 /// @author Modified from Nick Mudge (https://github.com/mudgen/diamond-3-hardhat/blob/main/contracts/Diamond.sol)
-contract Diamond {
-    /// @notice Initializes the Diamond proxy with the provided facets and initialization parameters
-    /// @param _init Address of the initialization contract
-    /// @param _calldata Calldata to be passed to the initialization contract
-    function initialize(FacetCut[] calldata _facetCuts, address _init, bytes calldata _calldata)
-        public
-        payable
-        virtual
-    {
-        bytes32 s = InitializableLib.initializableSlot();
-        InitializableLib.preInitializer(s);
-
-        DiamondLib.diamondCut(_facetCuts, _init, _calldata);
-
-        InitializableLib.postInitializer(s);
-    }
-
+abstract contract Diamond {
     /// @notice Fallback function that delegates calls to the appropriate facet based on function selector
     /// @dev Reads the facet address from diamond storage and performs a delegatecall; reverts if selector is not found
     fallback() external payable virtual {
@@ -76,6 +59,4 @@ contract Diamond {
             }
         }
     }
-
-    receive() external payable virtual {}
 }

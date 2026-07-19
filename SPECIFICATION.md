@@ -39,7 +39,6 @@ graph TB
     
     DiamondLib["DiamondLib<br/>Storage & cuts"]
     OwnableLib["OwnableLib<br/>Owner state"]
-    InitLib["InitializableLib<br/>Init guards"]
     ERC165Lib["ERC165Lib<br/>Interface registry"]
     
     SharedStorage["Shared Storage<br/>Diamond + Libraries"]
@@ -57,11 +56,9 @@ graph TB
     Own --> OwnableLib
     Custom --> DiamondLib
     Custom --> OwnableLib
-    Custom --> InitLib
     
     DiamondLib --> SharedStorage
     OwnableLib --> SharedStorage
-    InitLib --> SharedStorage
     ERC165Lib --> SharedStorage
 ```
 
@@ -182,15 +179,15 @@ Initialization differs from constructors because Diamond is a proxy:
 **Solution: Delegatecall-based initialization:**
 
 ```solidity
-// Initialize during Diamond deployment
-Diamond.initialize(
-    [facetCuts...],
-    address(diamondInit),
-    abi.encodeCall(DiamondInit.init, ())
-);
+// Concrete diamond: cut facets and run the init contract atomically at deployment
+contract MyDiamond is Diamond {
+    constructor(FacetCut[] memory _facetCuts, address _init, bytes memory _calldata) {
+        DiamondLib.diamondCut(_facetCuts, _init, _calldata);
+    }
+}
 ```
 
-Functions run in Diamond's delegatecall context, so initialization happens in the right storage.
+The init contract runs in the Diamond's delegatecall context, so initialization happens in the right storage. For factory/CREATE2/clone deployments where a constructor cannot run per-instance, expose an initializer-guarded `initialize` function in your concrete diamond instead (see `test/mocks/MockDiamond.sol` for a reference).
 
 ---
 
@@ -256,27 +253,6 @@ Single 32-byte slot:
 - Atomic state transitions (single SSTORE)
 - Storage efficiency
 
-### Initialization Storage Location
-
-**Namespace**: Initialization state  
-**Location**: `0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffbf601132`
-
-```
-Bit-packed single slot:
-  Bit 0:        initializing flag (1 = currently initializing)
-  Bits 1-64:    initialized version number
-```
-
-**Example values:**
-- `0x0` = never initialized
-- `0x3` = initializing version 1 (bits: 1 | (1<<1))
-- `0x2` = initialized v1, not initializing
-
-**Why bit packing:**
-- Two values in one storage slot
-- Atomic updates (single SSTORE)
-- Fast assembly checks
-
 ### ERC165 Interface Support
 
 **Namespace**: `"diamond.lib.storage.ERC165"`  
@@ -302,17 +278,12 @@ struct ERC165Storage {
 
 ```mermaid
 sequenceDiagram
-    participant User
+    participant Deployer
     participant Diamond
-    participant InitLib
     participant DiamondLib
     participant InitContract
     
-    User->>Diamond: initialize(cuts, initAddr, initData)
-    Diamond->>InitLib: preInitializer()
-    InitLib->>InitLib: set initializing=true, version=1
-    InitLib->>Diamond: continue
-    
+    Deployer->>Diamond: constructor(cuts, initAddr, initData)
     Diamond->>DiamondLib: diamondCut(cuts)
     DiamondLib->>DiamondLib: validate & apply all cuts
     DiamondLib->>Diamond: emit DiamondCut event
@@ -320,28 +291,9 @@ sequenceDiagram
     Diamond->>InitContract: delegatecall(initData)
     InitContract->>Diamond: write state (owner, etc)
     InitContract-->>Diamond: return
-    
-    Diamond->>InitLib: postInitializer()
-    InitLib->>InitLib: set initializing=false, version++
-    InitLib->>Diamond: emit Initialized event
 ```
 
-### Reinitialization Prevention
-
-**Problem**: Without guards, anyone could reset state by calling init again.
-
-**Solution: Version tracking**
-
-```
-First init:    version 0 → 1 (success)
-Retry same:    version 1 → 1 (fails: InvalidInitialization)
-Upgrade init:  version 1 → 2 (success: reinitializer)
-```
-
-**Guarantees:**
-- Cannot reinitialize to same or lower version
-- Can upgrade to higher version (supports versioned upgrades)
-- Initialization flag prevents reentrancy during init
+Running the cut in the constructor is atomic: the diamond is never observable in a facetless, ownerless state, and there is no separate `initialize` transaction to front-run.
 
 ### MultiInit for Complex Setup
 
