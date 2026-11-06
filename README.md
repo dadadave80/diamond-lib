@@ -141,6 +141,29 @@ See [GLOSSARY.md](./GLOSSARY.md#loupe) for more on introspection.
 
 ---
 
+## Multi-step initialization
+
+`MultiInit.multiInit(address[],bytes[])` delegatecalls the supplied initializers in order, in the diamond's context.
+The arrays must have equal lengths and contain exactly the intended steps. An empty batch is an explicit no-op;
+zero addresses are invalid entries, rather than a sentinel that ends the batch.
+
+Any invalid or failing step reverts the whole transaction, including earlier writes and the enclosing facet cut:
+
+| Failure | Error |
+| --- | --- |
+| Different array lengths | `AddressAndCalldataLengthMismatch()` |
+| Zero initializer | `MultiInit__ZeroInit(uint256 index)` |
+| Initializer without code | `NoBytecodeAtAddress(uint256 index, address initAddress)` |
+| Delegatecall reverted | `MultiInit__StepFailed(uint256 index, address init, bytes reason)` |
+
+Indexes are zero-based. Decode `reason` to inspect the original custom error, revert string, panic or empty data.
+For a nested `MultiInit`, the outer error identifies that batch and its `reason` contains the inner indexed error.
+Code that matched a bare inner revert or `InitializeReverted` must decode this wrapper instead. `DiamondLib` keeps
+its separate address-only `NoBytecodeAtAddress(address)` error. See [the changelog](./CHANGELOG.md#unreleased) for
+the compatibility changes.
+
+---
+
 ## 🔐 Storage & Architecture
 
 The library uses **ERC-7201 namespaced storage** to prevent collisions between facets:

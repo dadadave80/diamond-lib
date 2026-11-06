@@ -10,7 +10,8 @@ import {DiamondLoupeFacet} from "@diamond/facets/DiamondLoupeFacet.sol";
 import {MultiInit} from "@diamond/initializers/MultiInit.sol";
 import {
     AddressAndCalldataLengthMismatch,
-    InitializeReverted,
+    MultiInit__StepFailed,
+    MultiInit__ZeroInit,
     NoBytecodeAtAddress as MultiInitNoBytecodeAtAddress
 } from "@diamond/initializers/MultiInit.sol";
 import {OwnableInit} from "@diamond/initializers/OwnableInit.sol";
@@ -430,12 +431,12 @@ contract DiamondCutTester is DeployedDiamondState {
 
         bytes memory callData = abi.encodeWithSignature("multiInit(address[],bytes[])", addrs, data);
 
-        vm.expectRevert(abi.encodeWithSelector(MultiInitNoBytecodeAtAddress.selector, address(0xDEAD)));
+        vm.expectRevert(abi.encodeWithSelector(MultiInitNoBytecodeAtAddress.selector, 0, address(0xDEAD)));
         diamondCut.diamondCut(new FacetCut[](0), address(multiInit), callData);
     }
 
-    /// @notice MultiInit bubbles up init contract revert errors
-    function testSetting_MultiInitRevertBubblesUp() public {
+    /// @notice MultiInit identifies the step and preserves the original init error inside its wrapper
+    function testSetting_MultiInitRevertReportsStep() public {
         MultiInit multiInit = new MultiInit();
 
         address[] memory addrs = new address[](1);
@@ -445,25 +446,32 @@ contract DiamondCutTester is DeployedDiamondState {
 
         bytes memory callData = abi.encodeWithSignature("multiInit(address[],bytes[])", addrs, data);
 
-        vm.expectRevert(MockRevertInit.CustomInitError.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                MultiInit__StepFailed.selector,
+                0,
+                address(mockRevertInit),
+                abi.encodeWithSelector(MockRevertInit.CustomInitError.selector)
+            )
+        );
         diamondCut.diamondCut(new FacetCut[](0), address(multiInit), callData);
     }
 
-    /// @notice MultiInit stops processing on address(0) — the sentinel stone
-    function testSetting_MultiInitStopsOnZeroAddress() public {
+    /// @notice MultiInit rejects a zero initializer instead of silently ending the batch
+    function testSetting_MultiInitRejectsZeroAddress() public {
         MultiInit multiInit = new MultiInit();
         OwnableInit ownableInit = new OwnableInit();
 
         address[] memory addrs = new address[](2);
         bytes[] memory data = new bytes[](2);
-        addrs[0] = address(0); // sentinel — stops here
-        addrs[1] = address(ownableInit); // should not execute
+        addrs[0] = address(0);
+        addrs[1] = address(ownableInit); // must not execute
         data[0] = "";
-        data[1] = abi.encodeWithSignature("initOwner(address)", address(this));
+        data[1] = abi.encodeCall(OwnableInit.init, (address(this)));
 
         bytes memory callData = abi.encodeWithSignature("multiInit(address[],bytes[])", addrs, data);
 
-        // Should succeed (early return on address(0)), not revert
+        vm.expectRevert(abi.encodeWithSelector(MultiInit__ZeroInit.selector, 0));
         diamondCut.diamondCut(new FacetCut[](0), address(multiInit), callData);
     }
 
