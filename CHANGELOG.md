@@ -16,6 +16,17 @@ The `multiInit(address[],bytes[])` function signature, length-mismatch error and
 unchanged. Every rejected step reverts the enclosing transaction, including prior initialization writes and facet cuts.
 These changes require the next minor release under the repository's pre-major versioning policy; no version is set here.
 
+## [0.4.0](https://github.com/dadadave80/diamond-lib/compare/v0.3.0...v0.4.0) (2026-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Remove zero sentinel entries and pass exactly sized initializer arrays. Decode MultiInit__StepFailed(uint256,address,bytes) instead of bare inner reverts or InitializeReverted, and decode MultiInit NoBytecodeAtAddress(uint256,address) with its new index. The multiInit function signature and DiamondLib errors are unchanged.
+
+### Features
+
+* report indexed MultiInit failures atomically ([#37](https://github.com/dadadave80/diamond-lib/issues/37)) ([a6334d2](https://github.com/dadadave80/diamond-lib/commit/a6334d2329cbde0e314dbb53f058a1350aa8826f))
+
 ## [0.3.0](https://github.com/dadadave80/diamond-lib/compare/v0.2.0...v0.3.0) (2026-07-19)
 
 
