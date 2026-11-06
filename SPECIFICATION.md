@@ -308,7 +308,10 @@ MultiInit.multiInit(
 
 **Behavior:**
 - Each initializer runs sequentially in Diamond's context
-- Stops on zero address (allows variable-length arrays)
+- Zero addresses revert `MultiInit__ZeroInit(index)` instead of terminating the batch
+- Missing code reverts `NoBytecodeAtAddress(index, initAddress)`
+- Reverted steps report `MultiInit__StepFailed(index, init, reason)`, preserving the original revert bytes
+- Step indexes are zero-based; matching empty arrays remain a no-op
 - Any failure reverts entire transaction
 - Atomic: all succeed or none
 

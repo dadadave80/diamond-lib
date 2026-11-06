@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Breaking changes
+
+* `MultiInit` rejects a zero initializer with `MultiInit__ZeroInit(uint256 index)` instead of ending the batch
+  successfully. Pass arrays containing exactly the intended steps; remove zero sentinels and unused trailing entries.
+* Failed delegatecalls now report `MultiInit__StepFailed(uint256 index, address init, bytes reason)` instead of
+  bubbling the inner error or returning `InitializeReverted`. The original revert bytes, including an empty reason,
+  are preserved inside `reason`; nested batches retain their indexed error path.
+* `MultiInit`'s missing-code error is now `NoBytecodeAtAddress(uint256 index, address initAddress)`. Its indexes are
+  zero-based, as are the two errors above. `DiamondLib`'s separate address-only missing-code error is unchanged.
+
+The `multiInit(address[],bytes[])` function signature, length-mismatch error and explicit empty-batch no-op are
+unchanged. Every rejected step reverts the enclosing transaction, including prior initialization writes and facet cuts.
+These changes require the next minor release under the repository's pre-major versioning policy; no version is set here.
+
 ## [0.3.0](https://github.com/dadadave80/diamond-lib/compare/v0.2.0...v0.3.0) (2026-07-19)
 
 
